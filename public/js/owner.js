@@ -81,4 +81,15 @@ async function cargarChoferes() {
 }
 
 // Carga la lista al abrir la página
-window.onload = cargarChoferes;
+window.onload = cargarChoferes;// ---------------- ACTUALIZAR CONTADORES ----------------
+async function actualizarContadores() {
+  const choferes = await getDocs(collection(db, 'drivers'));
+  document.getElementById('cantChoferes').textContent = choferes.size;
+  // Aquí luego agregaremos viajes y alertas cuando creemos esas colecciones
+}
+
+// Carga todo al abrir la página
+window.onload = () => {
+  cargarChoferes();
+  actualizarContadores();
+};

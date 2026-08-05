@@ -11,6 +11,9 @@
     body { background: #f0f4f8; padding: 20px; max-width: 1200px; margin: 0 auto; }
     .cabecera { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
     .btn-salir { padding: 10px 20px; background: #dc2626; color: white; border: none; border-radius: 8px; cursor: pointer; }
+    .contadores { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 25px; }
+    .caja-contador { background: white; padding: 20px; border-radius: 12px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .caja-contador .numero { font-size: 32px; font-weight: bold; color: #1e40af; margin-bottom: 5px; }
     .seccion { background: white; padding: 20px; border-radius: 12px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
     .seccion h3 { color: #1e40af; margin-bottom: 15px; border-bottom: 1px solid #e2e8f0; padding-bottom: 8px; }
     .form-fila { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 15px; }
@@ -29,7 +32,23 @@
     <button class="btn-salir" id="btnSalir">Cerrar Sesión</button>
   </div>
 
-  <!-- 🆕 CREAR ADMINISTRADOR (SOLO LO VE EL DUEÑO) -->
+  <!-- 📊 CONTADORES (LO QUE TENÍAS ANTES) -->
+  <div class="contadores">
+    <div class="caja-contador">
+      <div class="numero" id="cantChoferes">0</div>
+      <div>Choferes</div>
+    </div>
+    <div class="caja-contador">
+      <div class="numero" id="cantViajes">0</div>
+      <div>Viajes</div>
+    </div>
+    <div class="caja-contador">
+      <div class="numero" id="cantAlertas">0</div>
+      <div>Alertas</div>
+    </div>
+  </div>
+
+  <!-- 🆕 CREAR ADMINISTRADOR -->
   <div class="seccion">
     <h3>👤 Crear Nuevo Administrador</h3>
     <div class="form-fila">
@@ -41,7 +60,7 @@
     <p id="msgAdmin" class="mensaje"></p>
   </div>
 
-  <!-- GESTIÓN DE CHOFERES -->
+  <!-- 🚐 GESTIÓN DE CHOFERES -->
   <div class="seccion">
     <h3>🚐 Agregar Chofer</h3>
     <div class="form-fila">
@@ -58,13 +77,14 @@
     </table>
   </div>
 
-  <!-- CONFIGURACIÓN -->
+  <!-- ⚙️ CONFIGURACIÓN DE PRECIOS -->
   <div class="seccion">
-    <h3>⚙️ Precios</h3>
+    <h3>⚙️ Configuración de Precios</h3>
     <div class="form-fila">
-      <input type="number" id="precioPersona" placeholder="Por persona ($)">
-      <input type="number" id="precioKilo" placeholder="Por km ($)">
-      <input type="number" id="precioHora" placeholder="Por hora ($)">
+      <input type="number" id="precioPersona" placeholder="Por Persona ($)">
+      <input type="number" id="precioZona" placeholder="Por Zona ($)">
+      <input type="number" id="precioKilo" placeholder="Por Kilómetro ($)">
+      <input type="number" id="precioHora" placeholder="Por Hora ($)">
     </div>
     <button class="btn-principal">Guardar Precios</button>
   </div>
