@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Panel Admin - Traslados Vans</title>
+  <link rel="manifest" href="/manifest.json">
+  <link rel="stylesheet" href="/src/css/styles.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <meta name="theme-color" content="#1a3a6b">
+</head>
+<body>
+
+  <nav class="navbar">
+    <h1>👔 Panel Admin</h1>
+    <span class="user-info" id="user-info"></span>
+  </nav>
+
+  <div class="dashboard">
+
+    <div class="stats-grid">
+      <div class="stat-card"><div class="number" id="stat-drivers">0</div><div class="label">Usuarios</div></div>
+      <div class="stat-card"><div class="number" id="stat-trips">0</div><div class="label">Viajes</div></div>
+    </div>
+
+    <h3 class="section-title">🚐 Gestión de Choferes</h3>
+    <div class="card">
+      <div class="card-header">➕ Agregar Chofer</div>
+      <div class="grid grid-2">
+        <input type="text" id="driver-nombre" class="form-control" placeholder="Nombre">
+        <input type="text" id="driver-apellido" class="form-control" placeholder="Apellido">
+      </div>
+      <div class="form-group" style="margin-top:10px">
+        <input type="password" id="driver-password" class="form-control" placeholder="Contraseña">
+      </div>
+      <button id="btn-add-driver" class="btn btn-primary">🚐 Agregar Chofer</button>
+    </div>
+
+    <div class="card">
+      <div class="card-header">👔 Agregar Administrador</div>
+      <div class="grid grid-2">
+        <input type="text" id="manager-nombre" class="form-control" placeholder="Nombre">
+        <input type="text" id="manager-apellido" class="form-control" placeholder="Apellido">
+      </div>
+      <div class="form-group" style="margin-top:10px">
+        <input type="password" id="manager-password" class="form-control" placeholder="Contraseña">
+      </div>
+      <button id="btn-add-manager" class="btn btn-purple">👔 Agregar Admin</button>
+    </div>
+
+    <div class="card">
+      <div class="card-header">📋 Lista de Usuarios</div>
+      <div style="overflow-x:auto">
+        <table>
+          <thead><tr><th>Nombre</th><th>Estado</th><th>Acciones</th></tr></thead>
+          <tbody id="drivers-list"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <h3 class="section-title">💰 Configuración de Precios</h3>
+    <div class="card">
+      <div class="grid grid-2">
+        <div><label>Por Persona ($)</label><input type="number" id="price-persona" class="price-input" step="0.01" min="0"></div>
+        <div><label>Por Zona ($)</label><input type="number" id="price-zona" class="price-input" step="0.01" min="0"></div>
+        <div><label>Por Kilómetro ($)</label><input type="number" id="price-km" class="price-input" step="0.01" min="0"></div>
+        <div><label>Por Hora ($)</label><input type="number" id="price-hora" class="price-input" step="0.01" min="0"></div>
+      </div>
+      <button id="btn-save-prices" class="btn btn-success" style="margin-top:10px">💾 Guardar Precios</button>
+    </div>
+
+    <h3 class="section-title">🗺️ Mapa en Vivo</h3>
+    <div class="card"><div id="live-map"></div></div>
+
+    <h3 class="section-title">⚠️ Alertas</h3>
+    <div class="card">
+      <button id="btn-refresh-alerts" class="btn btn-danger">🔄 Ver Alertas</button>
+      <div id="alerts-list" style="margin-top:15px"></div>
+    </div>
+
+    <h3 class="section-title">📜 Historial de Viajes</h3>
+    <div class="card">
+      <div class="btn-group">
+        <button id="btn-load-history" class="btn btn-info">📋 Ver Historial</button>
+        <button id="btn-export-excel" class="btn btn-success">📊 Exportar Excel</button>
+      </div>
+      <div style="overflow-x:auto;margin-top:10px">
+        <table>
+          <thead><tr><th>Chofer</th><th>Ruta</th><th>Costo</th><th>Fecha</th><th>Acción</th></tr></thead>
+          <tbody id="history-list"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <h3 class="section-title" style="color:var(--warning-yellow)">🔒 Bloqueo de App</h3>
+    <div class="card" style="border-left:4px solid var(--warning-yellow)">
+      <p>⛔ <strong>Solo el dueño</strong> puede bloquear/desbloquear la app.</p>
+      <p>El administrador NO tiene esta facultad.</p>
+      <button onclick="blockApp()" class="btn btn-warning" style="margin-top:10px">⏸ Bloqueo Temporal (Simulado)</button>
+    </div>
+
+  </div>
+
+  <script type="module" src="/src/js/manager.js"></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
+</body>
+</html>
+```>
+
+---
+
+### 🔟 `src/pages/dashboard-driver.html` — DASHBOARD CHOFER
+
+```html
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Panel Chofer - Traslados Vans</title>
+  <link rel="manifest" href="/manifest.json">
+  <link rel="stylesheet" href="/src/css/styles.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <meta name="theme-color" content="#1a3a6b">
+</head>
+<body>
+
+  <nav class="navbar">
+    <h1>🚐 Panel Chofer</h1>
+    <span class="user-info" id="driver-name">Cargando...</span>
+  </nav>
+
+  <div class="dashboard">
+
+    <!-- VIAJE -->
+    <h3 class="section-title">📍 Nuevo Viaje</h3>
+    <div class="card">
+      <div class="trip-field"><label>Lugar de Partida</label><input type="text" id="trip-origen" placeholder="Dirección de origen"></div>
+      <div class="trip-field"><label>Lugar de Destino</label><input type="text" id="trip-destino" placeholder="Dirección de destino"></div>
+      <div class="trip-field"><label>N° Personas</label><input type="number" id="trip-personas" value="1" min="1"></div>
+      <div class="btn-group"><button class="btn btn-info btn-block" onclick="calculateCost()">🧮 Calcular Costo</button></div>
+
+      <div class="trip-result" id="trip-result" style="display:none">
+        <div class="cost" id="trip-cost-display">$0</div>
+        <div class="detail" id="trip-distance-display"></div>
+        <div class="detail" id="trip-duration-display"></div>
+      </div>
+
+      <div class="btn-group" style="margin-top:15px">
+        <button class="btn btn-success btn-block" onclick="startTrip()">▶️ Iniciar Viaje</button>
+        <button class="btn btn-danger btn-block" onclick="endTrip()">⏹ Finalizar Viaje</button>
+      </div>
+    </div>
+
+    <!-- MAPA -->
+    <h3 class="section-title">🗺️ Mi Ubicación</h3>
+    <div class="card"><div id="driver-map"></div></div>
+
+    <!-- ALERTAS -->
+    <h3 class="section-title">⚠️ Alertas</h3>
+    <div class="card">
+      <div class="form-group">
+        <textarea id="alert-descripcion" class="form-control" rows="2" placeholder="Describe brevemente el detalle..."></textarea>
+      </div>
+      <div class="btn-group">
+        <button class="btn btn-danger" onclick="sendAlert('🚨 Robo')">🔴 Robo</button>
+        <button class="btn btn-warning" onclick="sendAlert('⛽ Falta de Combustible')">🟡 Combustible</button>
+        <button class="btn btn-danger" onclick="sendAlert('🔧 Desperfecto Vehicular')">🔴 Desperfecto</button>
+        <button class="btn btn-warning" onclick="sendAlert('✂️ Ruta Cortada')">🟡 Ruta Cortada</button>
+        <button class="btn btn-danger" onclick="sendAlert('📍 Fuera de Ruta')">🔴 Fuera de Ruta</button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- BOTÓN PÁNICO -->
+  <div class="panic-container">
+    <div class="panic-dropdown" id="panic-dropdown">
+      <button class="alert-btn" onclick="sendAlert('🚨 Robo')">🔴 Robo</button>
+      <button class="alert-btn" onclick="sendAlert('⛽ Falta de Combustible')">🟡 Combustible</button>
+      <button class="alert-btn" onclick="sendAlert('🔧 Desperfecto Vehicular')">🔴 Desperfecto</button>
+      <button class="alert-btn" onclick="sendAlert('✂️ Ruta Cortada')">🟡 Ruta Cortada</button>
+      <button class="alert-btn" onclick="sendAlert('📍 Fuera de Ruta')">🔴 Fuera de Ruta</button>
+    </div>
+    <button class="panic-btn" id="panic-btn">⚠️</button>
+  </div>
+
+  <script type="module" src="/src/js/driver.js"></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+</body>
+</html>
