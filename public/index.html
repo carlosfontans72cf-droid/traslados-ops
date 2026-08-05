@@ -3,58 +3,34 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Traslados Vans App</title>
-  <link rel="manifest" href="/manifest.json">
-  <link rel="stylesheet" href="/src/css/styles.css">
-  <meta name="theme-color" content="#1a3a6b">
-  <link rel="apple-touch-icon" href="/icons/icon-192.png">
+  <title>Traslados Vans - Iniciar Sesión</title>
+  <link rel="stylesheet" href="src/css/styles.css">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#2563eb">
 </head>
 <body>
   <div class="login-container">
-    <div class="login-card">
-      <div class="logo">🚐</div>
-      <h2>Traslados Vans</h2>
-      <p style="text-align:center; color: var(--text-muted); margin-bottom:20px;">Sistema de gestión de traslados</p>
+    <div class="login-box">
+      <h1>🚐 Traslados Vans</h1>
+      <p class="subtitulo">Acceso al sistema</p>
 
-      <div class="form-group">
-        <label for="role">Rol de acceso</label>
-        <select id="role" class="form-control">
-          <option value="owner">👑 Dueño</option>
-          <option value="manager">👔 Gerente</option>
-          <option value="driver">🚐 Chofer</option>
-        </select>
+      <div class="campo">
+        <label>Correo electrónico</label>
+        <input type="email" id="email" placeholder="tu@correo.com" required>
       </div>
 
-      <div class="form-group" id="field-nombre">
-        <label for="nombre">Nombre</label>
-        <input type="text" id="nombre" class="form-control" placeholder="Tu nombre">
+      <div class="campo">
+        <label>Contraseña</label>
+        <input type="password" id="password" placeholder="••••••••" required>
       </div>
 
-      <div class="form-group" id="field-apellido">
-        <label for="apellido">Apellido</label>
-        <input type="text" id="apellido" class="form-control" placeholder="Tu apellido">
-      </div>
-
-      <div class="form-group" id="field-password">
-        <label for="password">Contraseña</label>
-        <input type="password" id="password" class="form-control" placeholder="Contraseña">
-      </div>
-
-      <div class="form-group" id="field-email" style="display:none;">
-        <label for="email">Email</label>
-        <input type="email" id="email" class="form-control" placeholder="email@ejemplo.com">
-      </div>
-
-      <button id="btn-login" class="btn btn-primary btn-block btn-lg">🔑 Iniciar Sesión</button>
-      <div id="login-error" style="color: var(--alert-red); text-align: center; margin-top: 10px;"></div>
+      <button id="btnIngresar" class="btn-principal">Ingresar</button>
+      <p id="mensajeError" class="error"></p>
     </div>
   </div>
 
-  <script type="module" src="/src/js/auth.js"></script>
-  <script>
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js'));
-    }
-  </script>
+  <!-- Firebase -->
+  <script type="module" src="src/js/firebase-config.js"></script>
+  <script type="module" src="src/js/login.js"></script>
 </body>
 </html>
