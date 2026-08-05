@@ -3,76 +3,72 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Panel Dueño - Traslados Vans</title>
-  <link rel="manifest" href="/manifest.json">
-  <link rel="stylesheet" href="/src/css/styles.css">
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <meta name="theme-color" content="#1a3a6b">
+  <title>Panel del Dueño - Traslados Vans</title>
+  <link rel="stylesheet" href="../css/styles.css">
+  <meta name="theme-color" content="#1e40af">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+    body { background: #f0f4f8; padding: 20px; max-width: 1200px; margin: 0 auto; }
+    .cabecera { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+    .btn-salir { padding: 10px 20px; background: #dc2626; color: white; border: none; border-radius: 8px; cursor: pointer; }
+    .seccion { background: white; padding: 20px; border-radius: 12px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .seccion h3 { color: #1e40af; margin-bottom: 15px; border-bottom: 1px solid #e2e8f0; padding-bottom: 8px; }
+    .form-fila { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 15px; }
+    .form-fila input { padding: 10px; border: 1px solid #cbd5e1; border-radius: 8px; flex: 1; min-width: 180px; }
+    .btn-principal { padding: 10px 20px; background: #2563eb; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 500; }
+    .btn-principal:hover { background: #1d4ed8; }
+    .mensaje { margin-top: 10px; font-size: 14px; }
+    .lista { margin-top: 15px; width: 100%; border-collapse: collapse; }
+    .lista th, .lista td { padding: 10px; text-align: left; border-bottom: 1px solid #e2e8f0; }
+  </style>
 </head>
 <body>
-  <nav class="navbar"><h1>👑 Panel Dueño</h1><span class="user-info" id="user-info"></span></nav>
-  <div class="dashboard">
-    <div class="stats-grid">
-      <div class="stat-card"><div class="number" id="stat-drivers">0</div><div class="label">Choferes</div></div>
-      <div class="stat-card"><div class="number" id="stat-trips">0</div><div class="label">Viajes</div></div>
-      <div class="stat-card"><div class="number" id="stat-alerts">0</div><div class="label">Alertas</div></div>
-    </div>
 
-    <h3 class="section-title">🚐 Gestión de Choferes</h3>
-    <div class="card">
-      <div class="card-header">Agregar Chofer</div>
-      <div class="grid grid-2">
-        <input type="text" id="driver-nombre" class="form-control" placeholder="Nombre">
-        <input type="text" id="driver-apellido" class="form-control" placeholder="Apellido">
-      </div>
-      <div class="form-group"><input type="password" id="driver-password" class="form-control" placeholder="Contraseña"></div>
-      <button id="btn-add-driver" class="btn btn-primary">➕ Agregar Chofer</button>
-    </div>
-    <div class="card">
-      <div class="card-header">Lista de Choferes</div>
-      <div style="overflow-x:auto"><table><thead><tr><th>Nombre</th><th>Estado</th><th>Acciones</th></tr></thead><tbody id="drivers-list"></tbody></table></div>
-    </div>
-
-    <h3 class="section-title">💰 Configuración de Precios</h3>
-    <div class="card">
-      <div class="grid grid-2">
-        <div><label>Por Persona ($)</label><input type="number" id="price-persona" class="price-input" step="0.01"></div>
-        <div><label>Por Zona ($)</label><input type="number" id="price-zona" class="price-input" step="0.01"></div>
-        <div><label>Por Kilómetro ($)</label><input type="number" id="price-km" class="price-input" step="0.01"></div>
-        <div><label>Por Hora ($)</label><input type="number" id="price-hora" class="price-input" step="0.01"></div>
-      </div>
-      <button id="btn-save-prices" class="btn btn-success" style="margin-top:10px">💾 Guardar Precios</button>
-    </div>
-
-    <h3 class="section-title">🗺️ Mapa en Vivo</h3>
-    <div class="card"><div id="live-map"></div></div>
-
-    <h3 class="section-title">⚠️ Alertas</h3>
-    <div class="card">
-      <div class="btn-group"><button id="btn-refresh-alerts" class="btn btn-danger">🔄 Ver Alertas</button></div>
-      <div id="alerts-list" style="margin-top:15px"></div>
-    </div>
-
-    <h3 class="section-title">📜 Historial de Viajes</h3>
-    <div class="card">
-      <div class="btn-group">
-        <button id="btn-load-history" class="btn btn-info">📋 Ver Historial</button>
-        <button id="btn-export-excel" class="btn btn-success">📊 Exportar Excel</button>
-      </div>
-      <div style="overflow-x:auto;margin-top:10px"><table><thead><tr><th>Chofer</th><th>Ruta</th><th>Costo</th><th>Fecha</th><th>Acción</th></tr></thead><tbody id="history-list"></tbody></table></div>
-    </div>
-
-    <h3 class="section-title" style="color:var(--alert-red)">🔒 Bloqueo de App</h3>
-    <div class="card" style="border-left:4px solid var(--alert-red)">
-      <p>Solo el dueño puede bloquear/desbloquear la app completamente.</p>
-      <div class="btn-group">
-        <button id="btn-block-app" class="btn btn-danger">🚫 Bloquear App</button>
-        <button id="btn-unblock-app" class="btn btn-success">✅ Desbloquear App</button>
-      </div>
-    </div>
+  <div class="cabecera">
+    <h1>👑 Panel del Dueño</h1>
+    <button class="btn-salir" id="btnSalir">Cerrar Sesión</button>
   </div>
-  <script type="module" src="/src/js/owner.js"></script>
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
+
+  <!-- 🆕 CREAR ADMINISTRADOR (SOLO LO VE EL DUEÑO) -->
+  <div class="seccion">
+    <h3>👤 Crear Nuevo Administrador</h3>
+    <div class="form-fila">
+      <input type="text" id="adminNombre" placeholder="Nombre completo" required>
+      <input type="email" id="adminCorreo" placeholder="correo@ejemplo.com" required>
+      <input type="password" id="adminClave" placeholder="Contraseña temporal" required>
+    </div>
+    <button id="btnCrearAdmin" class="btn-principal">✅ Crear Administrador</button>
+    <p id="msgAdmin" class="mensaje"></p>
+  </div>
+
+  <!-- GESTIÓN DE CHOFERES -->
+  <div class="seccion">
+    <h3>🚐 Agregar Chofer</h3>
+    <div class="form-fila">
+      <input type="text" id="choferNombre" placeholder="Nombre completo" required>
+      <input type="text" id="choferTel" placeholder="Teléfono" required>
+    </div>
+    <button id="btnAgregarChofer" class="btn-principal">Agregar Chofer</button>
+    <p id="msgChofer" class="mensaje"></p>
+
+    <h4 style="margin-top:20px;">Lista de Choferes</h4>
+    <table class="lista" id="listaChoferes">
+      <thead><tr><th>Nombre</th><th>Teléfono</th><th>Estado</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <!-- CONFIGURACIÓN -->
+  <div class="seccion">
+    <h3>⚙️ Precios</h3>
+    <div class="form-fila">
+      <input type="number" id="precioPersona" placeholder="Por persona ($)">
+      <input type="number" id="precioKilo" placeholder="Por km ($)">
+      <input type="number" id="precioHora" placeholder="Por hora ($)">
+    </div>
+    <button class="btn-principal">Guardar Precios</button>
+  </div>
+
+<script type="module" src="../js/dashboard-owner.js"></script>
 </body>
 </html>
