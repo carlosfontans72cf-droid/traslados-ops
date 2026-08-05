@@ -1,0 +1,8 @@
+{
+  "name": "traslados-vans-app",
+  "version": "1.0.0",
+  "description": "PWA gestión traslados en vans",
+  "scripts": { "dev": "vercel dev", "deploy": "vercel --prod" },
+  "keywords": ["pwa", "traslados", "vans", "firebase"],
+  "license": "MIT"
+}

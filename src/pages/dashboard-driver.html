@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Panel Chofer - Traslados Vans</title>
+  <link rel="manifest" href="/manifest.json">
+  <link rel="stylesheet" href="/src/css/styles.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <meta name="theme-color" content="#1a3a6b">
+</head>
+<body>
+  <nav class="navbar"><h1>🚐 Panel Chofer</h1><span class="user-info" id="driver-name">Cargando...</span></nav>
+  <div class="dashboard">
+
+    <h3 class="section-title">📍 Nuevo Viaje</h3>
+    <div class="card">
+      <div class="trip-field"><label>Lugar de Partida</label><input type="text" id="trip-origen" placeholder="Dirección de origen"></div>
+      <div class="trip-field"><label>Lugar de Destino</label><input type="text" id="trip-destino" placeholder="Dirección de destino"></div>
+      <div class="trip-field"><label>N° Personas</label><input type="number" id="trip-personas" value="1" min="1"></div>
+      <div class="btn-group"><button class="btn btn-info btn-block" onclick="calculateCost()">🧮 Calcular Costo</button></div>
+      
+      <div class="trip-result" id="trip-result" style="display:none">
+        <div class="cost" id="trip-cost-display">$0</div>
+        <div class="detail" id="trip-distance-display"></div>
+        <div class="detail" id="trip-duration-display"></div>
+      </div>
+      
+      <div class="btn-group" style="margin-top:15px">
+        <button class="btn btn-success btn-block" onclick="startTrip()">▶️ Iniciar Viaje</button>
+        <button class="btn btn-danger btn-block" onclick="endTrip()">⏹ Finalizar Viaje</button>
+      </div>
+    </div>
+
+    <h3 class="section-title">🗺️ Mi Ubicación</h3>
+    <div class="card"><div id="driver-map"></div></div>
+
+    <h3 class="section-title">⚠️ Alertas</h3>
+    <div class="card">
+      <div class="form-group"><textarea id="alert-descripcion" class="form-control" rows="2" placeholder="Describe brevemente el detalle..."></textarea></div>
+      <div class="btn-group">
+        <button class="btn btn-danger" onclick="sendAlert('🚨 Robo')">🔴 Robo</button>
+        <button class="btn btn-warning" onclick="sendAlert('⛽ Falta de Combustible')">🟡 Combustible</button>
+        <button class="btn btn-danger" onclick="sendAlert('🔧 Desperfecto Vehicular')">🔴 Desperfecto</button>
+        <button class="btn btn-warning" onclick="sendAlert('✂️ Ruta Cortada')">🟡 Ruta Cortada</button>
+        <button class="btn btn-danger" onclick="sendAlert('📍 Fuera de Ruta')">🔴 Fuera de Ruta</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Botón PÁNICO FLOTANTE -->
+  <div class="panic-container">
+    <div class="panic-dropdown" id="panic-dropdown">
+      <button class="alert-btn" onclick="sendAlert('🚨 Robo')">🔴 Robo</button>
+      <button class="alert-btn" onclick="sendAlert('⛽ Falta de Combustible')">🟡 Combustible</button>
+      <button class="alert-btn" onclick="sendAlert('🔧 Desperfecto Vehicular')">🔴 Desperfecto</button>
+      <button class="alert-btn" onclick="sendAlert('✂️ Ruta Cortada')">🟡 Ruta Cortada</button>
+      <button class="alert-btn" onclick="sendAlert('📍 Fuera de Ruta')">🔴 Fuera de Ruta</button>
+    </div>
+    <button class="panic-btn" id="panic-btn">⚠️</button>
+  </div>
+
+  <script type="module" src="/src/js/driver.js"></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+</body>
+</html>

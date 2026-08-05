@@ -1,0 +1,13 @@
+{
+  "name": "Traslados Vans App",
+  "short_name": "Traslados",
+  "description": "App de servicios de traslados en vans",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#1a3a6b",
+  "theme_color": "#1a3a6b",
+  "icons": [
+    { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}

@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Panel Gerente - Traslados Vans</title>
+  <link rel="manifest" href="/manifest.json">
+  <link rel="stylesheet" href="/src/css/styles.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <meta name="theme-color" content="#1a3a6b">
+</head>
+<body>
+  <nav class="navbar"><h1>👔 Panel Gerente</h1><span class="user-info" id="user-info"></span></nav>
+  <div class="dashboard">
+    <div class="stats-grid">
+      <div class="stat-card"><div class="number" id="stat-drivers">0</div><div class="label">Choferes</div></div>
+      <div class="stat-card"><div class="number" id="stat-trips">0</div><div class="label">Viajes</div></div>
+    </div>
+
+    <h3 class="section-title">🚐 Gestión de Choferes</h3>
+    <div class="card">
+      <div class="card-header">Agregar Chofer</div>
+      <div class="grid grid-2">
+        <input type="text" id="driver-nombre" class="form-control" placeholder="Nombre">
+        <input type="text" id="driver-apellido" class="form-control" placeholder="Apellido">
+      </div>
+      <div class="form-group"><input type="password" id="driver-password" class="form-control" placeholder="Contraseña"></div>
+      <button id="btn-add-driver" class="btn btn-primary">➕ Agregar Chofer</button>
+    </div>
+    <div class="card">
+      <div class="card-header">Lista de Choferes</div>
+      <div style="overflow-x:auto"><table><thead><tr><th>Nombre</th><th>Estado</th><th>Acciones</th></tr></thead><tbody id="drivers-list"></tbody></table></div>
+    </div>
+
+    <h3 class="section-title">💰 Configuración de Precios</h3>
+    <div class="card">
+      <div class="grid grid-2">
+        <div><label>Por Persona ($)</label><input type="number" id="price-persona" class="price-input" step="0.01"></div>
+        <div><label>Por Zona ($)</label><input type="number" id="price-zona" class="price-input" step="0.01"></div>
+        <div><label>Por Kilómetro ($)</label><input type="number" id="price-km" class="price-input" step="0.01"></div>
+        <div><label>Por Hora ($)</label><input type="number" id="price-hora" class="price-input" step="0.01"></div>
+      </div>
+      <button id="btn-save-prices" class="btn btn-success" style="margin-top:10px">💾 Guardar Precios</button>
+    </div>
+
+    <h3 class="section-title">🗺️ Mapa en Vivo</h3>
+    <div class="card"><div id="live-map"></div></div>
+
+    <h3 class="section-title">⚠️ Alertas</h3>
+    <div class="card">
+      <div class="btn-group"><button id="btn-refresh-alerts" class="btn btn-danger">🔄 Ver Alertas</button></div>
+      <div id="alerts-list" style="margin-top:15px"></div>
+    </div>
+
+    <h3 class="section-title">📜 Historial de Viajes</h3>
+    <div class="card">
+      <div class="btn-group">
+        <button id="btn-load-history" class="btn btn-info">📋 Ver Historial</button>
+        <button id="btn-export-excel" class="btn btn-success">📊 Exportar Excel</button>
+      </div>
+      <div style="overflow-x:auto;margin-top:10px"><table><thead><tr><th>Chofer</th><th>Ruta</th><th>Costo</th><th>Fecha</th><th>Acción</th></tr></thead><tbody id="history-list"></tbody></table></div>
+    </div>
+
+    <h3 class="section-title" style="color:var(--warning-yellow)">🔒 Bloqueo de App</h3>
+    <div class="card" style="border-left:4px solid var(--warning-yellow)">
+      <p>⛔ <strong>Solo el dueño</strong> puede bloquear la app completamente.</p>
+      <button onclick="blockApp()" class="btn btn-warning" style="margin-top:10px">⏸ Bloqueo Temporal (Simulado)</button>
+    </div>
+  </div>
+  <script type="module" src="/src/js/manager.js"></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
+</body>
+</html>
