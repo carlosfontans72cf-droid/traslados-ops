@@ -1,17 +1,29 @@
-const CACHE_NAME = 'traslados-v1';
+const CACHE_NAME = 'traslados-v2';
+
 const urlsToCache = [
-  '/',                     // raíz
+  '/',
   '/index.html',
-  '/css/styles.css',       // ✅ QUITADO /src/
-  '/js/firebase-config.js',// ✅ QUITADO /src/
-  '/js/auth.js',           // ✅ QUITADO /src/
-  '/manifest.json',
-  '/icons/icon-192.png'
+  '/css/styles.css',
+  '/js/auth.js',
+  '/manifest.json'
 ];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => cache.addAll(urlsToCache))
+    caches.open(CACHE_NAME).then(cache => {
+      // Cacheamos solo los archivos que existen
+      return Promise.all(
+        urlsToCache.map(url => {
+          return fetch(url).then(response => {
+            if (response.ok) {
+              return cache.put(url, response);
+            }
+          }).catch(err => {
+            console.log(`No se pudo cachear ${url}:`, err);
+          });
+        })
+      );
+    })
   );
   self.skipWaiting();
 });
@@ -28,6 +40,7 @@ self.addEventListener('activate', (event) => {
       )
     )
   );
+  self.clientsClaim();
 });
 
 self.addEventListener('fetch', (event) => {

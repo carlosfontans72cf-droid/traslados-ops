@@ -4,6 +4,7 @@
   "description": "PWA para gestión de traslados en vans",
   "scripts": {
     "dev": "vercel dev",
+    "build": "echo 'No build required - static site'",
     "deploy": "vercel --prod"
   }
 }
