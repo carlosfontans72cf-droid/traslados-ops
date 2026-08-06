@@ -1,40 +1,59 @@
+// /js/auth.js
 import { auth, db } from './firebase-config.js';
 import { signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 import { doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
+// Elementos del formulario (coinciden con IDs en tu HTML)
 const btnIngresar = document.getElementById('btnIngresar');
 const mensajeError = document.getElementById('mensajeError');
 
 btnIngresar.addEventListener('click', async () => {
+  // Leer y limpiar valores
   const email = document.getElementById('email').value.trim();
-  const pass = document.getElementById('password').value;
+  const password = document.getElementById('password').value.trim();
+
+  // Limpiar aviso anterior
   mensajeError.textContent = '';
 
   try {
-    // 1. Iniciar sesión
-    const credenciales = await signInWithEmailAndPassword(auth, email, pass);
-    const uid = credenciales.user.uid;
+    // 📌 Validar que no falten datos
+    if (!email || !password) {
+      throw new Error('Completa correo y contraseña');
+    }
 
-    // 2. Obtener datos del usuario
-    const refUsuario = doc(db, 'users', uid);
-    const snapUsuario = await getDoc(refUsuario);
+    // 📌 Iniciar sesión con correo y contraseña
+    const credenciales = await signInWithEmailAndPassword(auth, email, password);
+    const uidUsuario = credenciales.user.uid;
 
-    if (!snapUsuario.exists()) throw new Error('Usuario no registrado');
-    const datos = snapUsuario.data();
+    // 📌 Cargar datos completos desde base de datos
+    const referenciaUsuario = doc(db, 'users', uidUsuario);
+    const documentoUsuario = await getDoc(referenciaUsuario);
 
-    // 3. Redirigir según rol
-    if (datos.role === 'owner') {
-      window.location.href = 'pages/dashboard-owner.html';
-    } else if (datos.role === 'manager') {
-      alert('Panel de gerente en construcción');
-    } else if (datos.role === 'driver') {
-      alert('Panel de chofer en construcción');
+    if (!documentoUsuario.exists()) {
+      throw new Error('Usuario no encontrado en registros');
+    }
+
+    const datosUsuario = documentoUsuario.data();
+
+    // 📌 Guardar datos en sesión para usar en paneles
+    sessionStorage.setItem('userRole', datosUsuario.role);
+    sessionStorage.setItem('userId', uidUsuario);
+    sessionStorage.setItem('fullName', `${datosUsuario.nombre} ${datosUsuario.apellido}`);
+
+    // 📌 REDIRECCIÓN SEGÚN PERFIL (rutas correctas definitivas)
+    if (datosUsuario.role === 'owner') {
+      window.location.href = '/pages/dashboard-owner.html';
+    } else if (datosUsuario.role === 'manager') {
+      window.location.href = '/pages/dashboard-manager.html';
+    } else if (datosUsuario.role === 'driver') {
+      window.location.href = '/pages/dashboard-driver.html';
     } else {
-      throw new Error('Rol no reconocido');
+      throw new Error('Perfil de usuario no reconocido');
     }
 
   } catch (error) {
-    console.error(error);
-    mensajeError.textContent = 'Error: ' + error.message;
+    // 📌 Mostrar error claro, guardar registro en consola
+    console.error('🔴 Fallo ingreso:', error);
+    mensajeError.textContent = `⚠️ ${error.message}`;
   }
 });

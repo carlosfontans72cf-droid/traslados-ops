@@ -8,6 +8,14 @@
   <link rel="stylesheet" href="/css/styles.css">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <meta name="theme-color" content="#1a3a6b">
+  <!-- ✅ Altura obligatoria para visualizar mapa -->
+  <style>
+    #live-map {
+      height: 380px;
+      width: 100%;
+      border-radius: 8px;
+    }
+  </style>
 </head>
 <body>
 
@@ -18,14 +26,14 @@
 
   <div class="dashboard">
 
-    <!-- STATS -->
+    <!-- 📊 ESTADÍSTICAS GENERALES -->
     <div class="stats-grid">
       <div class="stat-card"><div class="number" id="stat-drivers">0</div><div class="label">Usuarios</div></div>
       <div class="stat-card"><div class="number" id="stat-trips">0</div><div class="label">Viajes</div></div>
       <div class="stat-card"><div class="number" id="stat-alerts">0</div><div class="label">Alertas</div></div>
     </div>
 
-    <!-- CHOFERES -->
+    <!-- 🚐 GESTIÓN DE CHOFERES -->
     <h3 class="section-title">🚐 Gestión de Choferes</h3>
     <div class="card">
       <div class="card-header">➕ Agregar Chofer</div>
@@ -39,7 +47,7 @@
       <button id="btn-add-driver" class="btn btn-primary">🚐 Agregar Chofer</button>
     </div>
 
-    <!-- ADMINISTRADORES -->
+    <!-- 👔 AGREGAR ADMINISTRADOR -->
     <div class="card">
       <div class="card-header">👔 Agregar Administrador</div>
       <div class="grid grid-2">
@@ -52,7 +60,7 @@
       <button id="btn-add-manager" class="btn btn-purple">👔 Agregar Admin</button>
     </div>
 
-    <!-- LISTA DE USUARIOS -->
+    <!-- 📋 LISTA TODOS LOS USUARIOS -->
     <div class="card">
       <div class="card-header">📋 Lista de Usuarios (Choferes y Admins)</div>
       <div style="overflow-x:auto">
@@ -63,7 +71,7 @@
       </div>
     </div>
 
-    <!-- PRECIOS -->
+    <!-- 💰 PRECIOS -->
     <h3 class="section-title">💰 Configuración de Precios</h3>
     <div class="card">
       <div class="grid grid-2">
@@ -75,18 +83,18 @@
       <button id="btn-save-prices" class="btn btn-success" style="margin-top:10px">💾 Guardar Precios</button>
     </div>
 
-    <!-- MAPA -->
+    <!-- 🗺️ MAPA UBICACIONES EN VIVO -->
     <h3 class="section-title">🗺️ Mapa en Vivo</h3>
     <div class="card"><div id="live-map"></div></div>
 
-    <!-- ALERTAS -->
+    <!-- ⚠️ LISTA DE ALERTAS -->
     <h3 class="section-title">⚠️ Alertas</h3>
     <div class="card">
       <button id="btn-refresh-alerts" class="btn btn-danger">🔄 Ver Alertas</button>
       <div id="alerts-list" style="margin-top:15px"></div>
     </div>
 
-    <!-- HISTORIAL -->
+    <!-- 📜 HISTORIAL DE VIAJES + EXCEL -->
     <h3 class="section-title">📜 Historial de Viajes</h3>
     <div class="card">
       <div class="btn-group">
@@ -101,7 +109,7 @@
       </div>
     </div>
 
-    <!-- BLOQUEAR APP -->
+    <!-- 🔒 BLOQUEO / DESBLOQUEO GENERAL -->
     <h3 class="section-title" style="color:var(--alert-red)">🔒 Bloqueo de App</h3>
     <div class="card" style="border-left:4px solid var(--alert-red)">
       <p>Solo el dueño puede bloquear/desbloquear la app completamente.</p>
@@ -113,8 +121,10 @@
 
   </div>
 
-  <script type="module" = /js/owner.js"></script>
-  <script ="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <script ="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
+  <!-- ✅ CORREGIDO: etiquetas completas src=, orden carga correcto -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
+  <!-- ✅ RUTA CORRECTA: subir un nivel desde pages/ → ../js/owner.js -->
+  <script type="module" src="../js/owner.js"></script>
 </body>
 </html>

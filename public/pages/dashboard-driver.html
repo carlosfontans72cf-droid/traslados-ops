@@ -8,9 +8,23 @@
   <link rel="stylesheet" href="/css/styles.css">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <meta name="theme-color" content="#1a3a6b">
+  <!-- ✅ Estilos mapa + botón pánico -->
+  <style>
+    #driver-map { height: 350px; width: 100%; border-radius:8px; }
+    .panic-container { position:fixed; bottom:25px; right:25px; z-index:999; }
+    .panic-btn { width:60px; height:60px; border-radius:50%; font-size:22px; font-weight:bold; background:#dc3545; color:white; border:none; cursor:pointer; box-shadow:0 4px 12px rgba(0,0,0,0.3); }
+    .panic-dropdown { display:none; position:absolute; bottom:70px; right:0; background:white; border-radius:8px; padding:10px; box-shadow:0 4px 15px rgba(0,0,0,0.25); min-width:160px; }
+    .panic-dropdown.show { display:block; }
+    .alert-btn { width:100%; margin:4px 0; padding:8px; border:none; border-radius:4px; cursor:pointer; text-align:left; }
+  </style>
 </head>
 <body>
-  <nav class="navbar"><h1>🚐 Panel Chofer</h1><span class="user-info" id="driver-name">Cargando...</span></nav>
+
+  <nav class="navbar">
+    <h1>🚐 Panel Chofer</h1>
+    <span class="user-info" id="driver-name">Cargando...</span>
+  </nav>
+
   <div class="dashboard">
 
     <h3 class="section-title">📍 Nuevo Viaje</h3>
@@ -19,13 +33,13 @@
       <div class="trip-field"><label>Lugar de Destino</label><input type="text" id="trip-destino" placeholder="Dirección de destino"></div>
       <div class="trip-field"><label>N° Personas</label><input type="number" id="trip-personas" value="1" min="1"></div>
       <div class="btn-group"><button class="btn btn-info btn-block" onclick="calculateCost()">🧮 Calcular Costo</button></div>
-      
-      <div class="trip-result" id="trip-result" style="display:none">
-        <div class="cost" id="trip-cost-display">$0</div>
+
+      <div class="trip-result" id="trip-result" style="display:none; margin-top:15px; padding:12px; background:#e8f0fe; border-radius:8px;">
+        <div class="cost" id="trip-cost-display" style="font-size:20px; font-weight:bold; color:#1e40af;">$0</div>
         <div class="detail" id="trip-distance-display"></div>
         <div class="detail" id="trip-duration-display"></div>
       </div>
-      
+
       <div class="btn-group" style="margin-top:15px">
         <button class="btn btn-success btn-block" onclick="startTrip()">▶️ Iniciar Viaje</button>
         <button class="btn btn-danger btn-block" onclick="endTrip()">⏹ Finalizar Viaje</button>
@@ -37,30 +51,34 @@
 
     <h3 class="section-title">⚠️ Alertas</h3>
     <div class="card">
-      <div class="form-group"><textarea id="alert-descripcion" class="form-control" rows="2" placeholder="Describe brevemente el detalle..."></textarea></div>
+      <div class="form-group">
+        <textarea id="alert-descripcion" class="form-control" rows="2" placeholder="Describe brevemente el detalle..."></textarea>
+      </div>
       <div class="btn-group">
-        <button class="btn btn-danger" onclick="sendAlert('🚨 Robo')">🔴 Robo</button>
+        <button class="btn btn-danger" onclick="sendAlert('🚨 Robo'); this.parentElement.closest('.panic-dropdown')?.classList.remove('show')">🔴 Robo</button>
         <button class="btn btn-warning" onclick="sendAlert('⛽ Falta de Combustible')">🟡 Combustible</button>
         <button class="btn btn-danger" onclick="sendAlert('🔧 Desperfecto Vehicular')">🔴 Desperfecto</button>
         <button class="btn btn-warning" onclick="sendAlert('✂️ Ruta Cortada')">🟡 Ruta Cortada</button>
         <button class="btn btn-danger" onclick="sendAlert('📍 Fuera de Ruta')">🔴 Fuera de Ruta</button>
       </div>
     </div>
+
   </div>
 
-  <!-- Botón PÁNICO FLOTANTE -->
+  <!-- Botón PÁNICO FLOTANTE FUNCIONAL -->
   <div class="panic-container">
     <div class="panic-dropdown" id="panic-dropdown">
-      <button class="alert-btn" onclick="sendAlert('🚨 Robo')">🔴 Robo</button>
-      <button class="alert-btn" onclick="sendAlert('⛽ Falta de Combustible')">🟡 Combustible</button>
-      <button class="alert-btn" onclick="sendAlert('🔧 Desperfecto Vehicular')">🔴 Desperfecto</button>
-      <button class="alert-btn" onclick="sendAlert('✂️ Ruta Cortada')">🟡 Ruta Cortada</button>
-      <button class="alert-btn" onclick="sendAlert('📍 Fuera de Ruta')">🔴 Fuera de Ruta</button>
+      <button class="alert-btn" onclick="sendAlert('🚨 Robo'); this.parentElement.classList.remove('show')">🔴 Robo</button>
+      <button class="alert-btn" onclick="sendAlert('⛽ Falta de Combustible'); this.parentElement.classList.remove('show')">🟡 Combustible</button>
+      <button class="alert-btn" onclick="sendAlert('🔧 Desperfecto Vehicular'); this.parentElement.classList.remove('show')">🔴 Desperfecto</button>
+      <button class="alert-btn" onclick="sendAlert('✂️ Ruta Cortada'); this.parentElement.classList.remove('show')">🟡 Ruta Cortada</button>
+      <button class="alert-btn" onclick="sendAlert('📍 Fuera de Ruta'); this.parentElement.classList.remove('show')">🔴 Fuera de Ruta</button>
     </div>
     <button class="panic-btn" id="panic-btn">⚠️</button>
   </div>
 
-  <script type="module" /src/js/driver.js"></script>
-  <script ="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <!-- ✅ CORREGIDO: etiquetas completas, rutas bien, orden de carga correcto -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script type="module" src="../js/driver.js"></script>
 </body>
 </html>

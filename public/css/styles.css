@@ -1,8 +1,9 @@
+/* ===== REINICIO Y BASE ===== */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: 'Segoe UI', Roboto, sans-serif;
+  font-family: 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', sans-serif;
 }
 
 body {
@@ -12,21 +13,41 @@ body {
   justify-content: center;
   background: linear-gradient(135deg, #1e40af 0%, #3b82f6 50%, #60a5fa 100%);
   padding: 20px;
+  /* Mejora suavidad visual */
+  -webkit-font-smoothing: antialiased;
 }
 
+/* ===== CONTENEDOR CENTRAL ===== */
 .login-container {
   width: 100%;
   max-width: 420px;
+  /* Evita que se pegue a bordes en pantallas pequeñas */
+  margin: auto;
 }
 
 .login-box {
-  background: white;
+  background: #ffffff;
   padding: 40px 30px;
   border-radius: 16px;
-  box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
   text-align: center;
+  /* Pequeña animación aparición */
+  animation: aparecer 0.4s ease-out;
 }
 
+/* ===== ANIMACIÓN ===== */
+@keyframes aparecer {
+  from {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ===== TEXTOS Y LOGO ===== */
 .logo {
   font-size: 48px;
   margin-bottom: 10px;
@@ -36,14 +57,17 @@ h1 {
   color: #1e40af;
   font-size: 28px;
   margin-bottom: 8px;
+  font-weight: 700;
 }
 
 .subtitulo {
   color: #64748b;
   margin-bottom: 30px;
   font-size: 15px;
+  line-height: 1.5;
 }
 
+/* ===== CAMPOS DE ENTRADA ===== */
 .campo {
   text-align: left;
   margin-bottom: 20px;
@@ -54,6 +78,7 @@ h1 {
   color: #334155;
   margin-bottom: 6px;
   font-weight: 500;
+  font-size: 15px;
 }
 
 .campo input {
@@ -62,26 +87,29 @@ h1 {
   border: 1px solid #cbd5e1;
   border-radius: 8px;
   font-size: 15px;
-  transition: border 0.2s;
+  transition: border-color 0.25s ease, box-shadow 0.25s ease;
+  background-color: #fcfcfd;
 }
 
 .campo input:focus {
   outline: none;
   border-color: #2563eb;
   box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+  background-color: #ffffff;
 }
 
+/* ===== BOTÓN PRINCIPAL ===== */
 .btn-principal {
   width: 100%;
   padding: 13px;
   background: #2563eb;
-  color: white;
+  color: #ffffff;
   border: none;
   border-radius: 8px;
   font-size: 16px;
   font-weight: 600;
   cursor: pointer;
-  transition: background 0.2s;
+  transition: background-color 0.25s ease, transform 0.2s ease;
 }
 
 .btn-principal:hover {
@@ -92,9 +120,24 @@ h1 {
   transform: scale(0.98);
 }
 
+/* ===== MENSAJE DE ERROR ===== */
 .error {
   margin-top: 15px;
   color: #dc2626;
   font-size: 14px;
   font-weight: 500;
+  min-height: 20px;
+}
+
+/* ===== AJUSTES PARA CELULARES / PANTALLAS PEQUEÑAS ===== */
+@media (max-width: 480px) {
+  .login-box {
+    padding: 30px 20px;
+  }
+  h1 {
+    font-size: 24px;
+  }
+  .logo {
+    font-size: 40px;
+  }
 }

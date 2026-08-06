@@ -13,71 +13,78 @@ btnLogin.addEventListener('click', async () => {
   const apellido = document.getElementById('apellido').value.trim();
   const password = document.getElementById('password').value;
 
+  // Limpiar mensajes anteriores
   errorDiv.textContent = '';
   btnLogin.disabled = true;
   btnLogin.textContent = '⏳ Entrando...';
 
   try {
+    // 📌 Validar que no falten datos
     if (!nombre || !apellido || !password) {
-      errorDiv.textContent = '⚠️ Completa todos los campos.';
-      throw new Error('campos vacios');
+      errorDiv.textContent = '⚠️ Completa todos los campos obligatorios.';
+      throw new Error('Faltan datos por completar');
     }
 
-    // Buscar usuario por nombre + apellido + contraseña
+    // 📌 Buscar en colección "users" por nombre y apellido
     const usersRef = collection(db, 'users');
-    const q = query(
+    const consulta = query(
       usersRef,
       where('nombre', '==', nombre),
       where('apellido', '==', apellido)
     );
-    const snapshot = await getDocs(q);
+    const resultado = await getDocs(consulta);
 
-    if (snapshot.empty) {
-      errorDiv.textContent = '❌ Usuario no encontrado.';
-      throw new Error('usuario no encontrado');
+    if (resultado.empty) {
+      errorDiv.textContent = '❌ Usuario no registrado. Verifica tus datos.';
+      throw new Error('Sin coincidencia nombre+apellido');
     }
 
-    // Puede haber varios con mismo nombre/apellido, buscar el que coincida en password
-    let userDoc = null;
-    let userData = null;
+    // 📌 Dentro de coincidencias, comprobar contraseña y estado activo
+    let datosUsuario = null;
+    let idUsuario = null;
 
-    for (const d of snapshot.docs) {
-      const data = d.data();
-      if (data.password === password) {
-        userDoc = d;
-        userData = data;
+    for (const registro of resultado.docs) {
+      const datos = registro.data();
+      if (datos.password === password) {
+        if (!datos.activo) {
+          errorDiv.textContent = '⛔ Tu cuenta está desactivada. Consulta con el administrador.';
+          throw new Error('Usuario inactivo');
+        }
+        // Guardamos datos solo si contraseña correcta Y activo
+        datosUsuario = datos;
+        idUsuario = registro.id;
         break;
       }
     }
 
-    if (!userDoc || !userData) {
-      errorDiv.textContent = '❌ Contraseña incorrecta.';
-      throw new Error('contraseña incorrecta');
+    if (!datosUsuario) {
+      errorDiv.textContent = '❌ Contraseña incorrecta. Intenta nuevamente.';
+      throw new Error('Contraseña no coincide');
     }
 
-    if (!userData.activo) {
-      errorDiv.textContent = '⛔ Usuario inactivo. Contacta al dueño.';
-      throw new Error('usuario inactivo');
+    // 📌 Guardar datos en sesión para usarlos en paneles
+    sessionStorage.setItem('userRole', datosUsuario.role);
+    sessionStorage.setItem('userId', idUsuario);
+    sessionStorage.setItem('fullName', `${datosUsuario.nombre} ${datosUsuario.apellido}`);
+    sessionStorage.setItem('userNombre', datosUsuario.nombre);
+    sessionStorage.setItem('userApellido', datosUsuario.apellido);
+
+    // 📌 REDIRECCIÓN CORRECTA → SIN /src/ , EXACTA
+    let destino = '/pages/dashboard-driver.html';
+    if (datosUsuario.role === 'owner') {
+      destino = '/pages/dashboard-owner.html';
+    } else if (datosUsuario.role === 'manager') {
+      destino = '/pages/dashboard-manager.html';
     }
 
-    // Guardar sesión
-    sessionStorage.setItem('userRole', userData.role);       // 'owner', 'manager', 'driver'
-    sessionStorage.setItem('userId', userDoc.id);             // ID de Firestore
-    sessionStorage.setItem('userName', `${userData.nombre} ${userData.apellido}`);
-    sessionStorage.setItem('userNombre', userData.nombre);
-    sessionStorage.setItem('userApellido', userData.apellido);
+    console.log('✅ Ingreso válido, redirigiendo a:', destino);
+    window.location.href = destino;
 
-    // Redirigir según rol
-    let redirectPage = '/pages/dashboard-driver.html';
-    if (userData.role === 'owner') redirectPage = '/pages/dashboard-owner.html';
-    else if (userData.role === 'manager') redirectPage = '/pages/dashboard-manager.html';
-
-    window.location.href = redirectPage;
-
-  } catch (e) {
-    console.error('Login error:', e);
-    // El mensaje de error ya se muestra en errorDiv
+  } catch (error) {
+    console.error('🔴 Error inicio sesión:', error);
+    // Mensaje ya se muestra arriba, no repetimos
   } finally {
+    // Volver a habilitar botón siempre, falle o no
     btnLogin.disabled = false;
     btnLogin.textContent = '🔑 Iniciar Sesión';
   }
