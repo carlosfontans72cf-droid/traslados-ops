@@ -1,4 +1,4 @@
-// src/js/utils.js
+// /js/utils.js
 
 export function showAlert(message, type = 'info') {
   const colors = {

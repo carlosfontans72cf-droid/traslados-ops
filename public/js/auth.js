@@ -1,4 +1,4 @@
-// src/js/auth.js
+// /js/auth.js
 import { db } from './firebase-config.js';
 import {
   collection, getDocs, query, where,
@@ -68,9 +68,9 @@ btnLogin.addEventListener('click', async () => {
     sessionStorage.setItem('userApellido', userData.apellido);
 
     // Redirigir según rol
-    let redirectPage = '/src/pages/dashboard-driver.html';
-    if (userData.role === 'owner') redirectPage = '/src/pages/dashboard-owner.html';
-    else if (userData.role === 'manager') redirectPage = '/src/pages/dashboard-manager.html';
+    let redirectPage = '/pages/dashboard-driver.html';
+    if (userData.role === 'owner') redirectPage = '/pages/dashboard-owner.html';
+    else if (userData.role === 'manager') redirectPage = '/pages/dashboard-manager.html';
 
     window.location.href = redirectPage;
 

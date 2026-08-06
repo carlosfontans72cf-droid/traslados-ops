@@ -1,4 +1,4 @@
-// src/js/driver.js
+// /js/driver.js
 import { db } from './firebase-config.js';
 import { doc, getDoc, updateDoc, collection, addDoc, query, where, getDocs, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 import { showAlert, getCurrentLocation, calculateRouteCost } from './utils.js';

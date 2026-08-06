@@ -1,4 +1,4 @@
-// src/js/owner.js
+// /js/owner.js
 import { db } from './firebase-config.js';
 import {
   collection, getDocs, addDoc, deleteDoc, doc, updateDoc,
