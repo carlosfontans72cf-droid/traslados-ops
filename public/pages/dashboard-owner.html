@@ -8,13 +8,28 @@
   <link rel="stylesheet" href="/css/styles.css">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <meta name="theme-color" content="#1a3a6b">
-  <!-- ✅ Altura obligatoria para visualizar mapa -->
   <style>
+    /* Altura mapa */
     #live-map {
       height: 380px;
       width: 100%;
       border-radius: 8px;
     }
+    /* ✅ Estilos para ver/ocultar contraseña */
+    .form-group { position: relative; }
+    .ver-contrasena {
+      position: absolute;
+      right: 12px;
+      bottom: 10px;
+      background: transparent;
+      border: none;
+      font-size: 18px;
+      color: #64748b;
+      cursor: pointer;
+      transition: color 0.2s;
+    }
+    .ver-contrasena:hover { color: #2563eb; }
+    .form-control { padding-right: 42px; } /* Espacio para que texto no tape ícono */
   </style>
 </head>
 <body>
@@ -26,14 +41,12 @@
 
   <div class="dashboard">
 
-    <!-- 📊 ESTADÍSTICAS GENERALES -->
     <div class="stats-grid">
       <div class="stat-card"><div class="number" id="stat-drivers">0</div><div class="label">Usuarios</div></div>
       <div class="stat-card"><div class="number" id="stat-trips">0</div><div class="label">Viajes</div></div>
       <div class="stat-card"><div class="number" id="stat-alerts">0</div><div class="label">Alertas</div></div>
     </div>
 
-    <!-- 🚐 GESTIÓN DE CHOFERES -->
     <h3 class="section-title">🚐 Gestión de Choferes</h3>
     <div class="card">
       <div class="card-header">➕ Agregar Chofer</div>
@@ -41,26 +54,29 @@
         <input type="text" id="driver-nombre" class="form-control" placeholder="Nombre">
         <input type="text" id="driver-apellido" class="form-control" placeholder="Apellido">
       </div>
+      <!-- ✅ Contraseña con botón ojo -->
       <div class="form-group" style="margin-top:10px">
         <input type="password" id="driver-password" class="form-control" placeholder="Contraseña">
+        <button type="button" class="ver-contrasena" data-target="driver-password">👁</button>
       </div>
       <button id="btn-add-driver" class="btn btn-primary">🚐 Agregar Chofer</button>
     </div>
 
-    <!-- 👔 AGREGAR ADMINISTRADOR -->
+    <h3 class="section-title">👔 Agregar Administrador</h3>
     <div class="card">
       <div class="card-header">👔 Agregar Administrador</div>
       <div class="grid grid-2">
         <input type="text" id="manager-nombre" class="form-control" placeholder="Nombre">
         <input type="text" id="manager-apellido" class="form-control" placeholder="Apellido">
       </div>
+      <!-- ✅ Contraseña con botón ojo -->
       <div class="form-group" style="margin-top:10px">
         <input type="password" id="manager-password" class="form-control" placeholder="Contraseña">
+        <button type="button" class="ver-contrasena" data-target="manager-password">👁</button>
       </div>
       <button id="btn-add-manager" class="btn btn-purple">👔 Agregar Admin</button>
     </div>
 
-    <!-- 📋 LISTA TODOS LOS USUARIOS -->
     <div class="card">
       <div class="card-header">📋 Lista de Usuarios (Choferes y Admins)</div>
       <div style="overflow-x:auto">
@@ -71,7 +87,6 @@
       </div>
     </div>
 
-    <!-- 💰 PRECIOS -->
     <h3 class="section-title">💰 Configuración de Precios</h3>
     <div class="card">
       <div class="grid grid-2">
@@ -83,18 +98,15 @@
       <button id="btn-save-prices" class="btn btn-success" style="margin-top:10px">💾 Guardar Precios</button>
     </div>
 
-    <!-- 🗺️ MAPA UBICACIONES EN VIVO -->
     <h3 class="section-title">🗺️ Mapa en Vivo</h3>
     <div class="card"><div id="live-map"></div></div>
 
-    <!-- ⚠️ LISTA DE ALERTAS -->
     <h3 class="section-title">⚠️ Alertas</h3>
     <div class="card">
       <button id="btn-refresh-alerts" class="btn btn-danger">🔄 Ver Alertas</button>
       <div id="alerts-list" style="margin-top:15px"></div>
     </div>
 
-    <!-- 📜 HISTORIAL DE VIAJES + EXCEL -->
     <h3 class="section-title">📜 Historial de Viajes</h3>
     <div class="card">
       <div class="btn-group">
@@ -109,7 +121,6 @@
       </div>
     </div>
 
-    <!-- 🔒 BLOQUEO / DESBLOQUEO GENERAL -->
     <h3 class="section-title" style="color:var(--alert-red)">🔒 Bloqueo de App</h3>
     <div class="card" style="border-left:4px solid var(--alert-red)">
       <p>Solo el dueño puede bloquear/desbloquear la app completamente.</p>
@@ -121,10 +132,19 @@
 
   </div>
 
-  <!-- ✅ CORREGIDO: etiquetas completas src=, orden carga correcto -->
+  <!-- ✅ Código funcional mostrar / ocultar contraseña -->
+  <script>
+    document.addEventListener('click', e => {
+      const btn = e.target.closest('.ver-contrasena');
+      if (!btn) return;
+      const campo = document.getElementById(btn.dataset.target);
+      if (!campo) return;
+      campo.type = campo.type === 'password' ? (btn.textContent='🙈', 'text') : (btn.textContent='👁', 'password');
+    });
+  </script>
+
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
-  <!-- ✅ RUTA CORRECTA: subir un nivel desde pages/ → ../js/owner.js -->
   <script type="module" src="../js/owner.js"></script>
 </body>
 </html>

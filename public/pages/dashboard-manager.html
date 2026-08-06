@@ -8,9 +8,24 @@
   <link rel="stylesheet" href="/css/styles.css">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <meta name="theme-color" content="#1a3a6b">
-  <!-- ✅ Altura mapa obligatoria para que se muestre -->
   <style>
+    /* Altura mapa */
     #live-map { height: 380px; width: 100%; border-radius:8px; }
+    /* ✅ Estilos botón ver contraseña */
+    .form-group { position: relative; }
+    .ver-contrasena {
+      position: absolute;
+      right: 12px;
+      bottom: 10px;
+      background: transparent;
+      border: none;
+      font-size: 18px;
+      color: #64748b;
+      cursor: pointer;
+      transition: color 0.2s;
+    }
+    .ver-contrasena:hover { color: #2563eb; }
+    .form-control { padding-right: 42px; } /* Espacio para el ícono */
   </style>
 </head>
 <body>
@@ -34,8 +49,10 @@
         <input type="text" id="driver-nombre" class="form-control" placeholder="Nombre">
         <input type="text" id="driver-apellido" class="form-control" placeholder="Apellido">
       </div>
+      <!-- ✅ Contraseña con botón ojo -->
       <div class="form-group" style="margin-top:10px">
         <input type="password" id="driver-password" class="form-control" placeholder="Contraseña">
+        <button type="button" class="ver-contrasena" data-target="driver-password">👁</button>
       </div>
       <button id="btn-add-driver" class="btn btn-primary">🚐 Agregar Chofer</button>
     </div>
@@ -46,8 +63,10 @@
         <input type="text" id="manager-nombre" class="form-control" placeholder="Nombre">
         <input type="text" id="manager-apellido" class="form-control" placeholder="Apellido">
       </div>
+      <!-- ✅ Contraseña con botón ojo -->
       <div class="form-group" style="margin-top:10px">
         <input type="password" id="manager-password" class="form-control" placeholder="Contraseña">
+        <button type="button" class="ver-contrasena" data-target="manager-password">👁</button>
       </div>
       <button id="btn-add-manager" class="btn btn-purple">👔 Agregar Admin</button>
     </div>
@@ -105,7 +124,17 @@
 
   </div>
 
-  <!-- ✅ CORREGIDO: etiquetas completas, rutas relativas correctas -->
+  <!-- ✅ Funcionamiento del ojo -->
+  <script>
+    document.addEventListener('click', e => {
+      const btn = e.target.closest('.ver-contrasena');
+      if (!btn) return;
+      const campo = document.getElementById(btn.dataset.target);
+      if (!campo) return;
+      campo.type = campo.type === 'password' ? (btn.textContent='🙈', 'text') : (btn.textContent='👁', 'password');
+    });
+  </script>
+
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
   <script type="module" src="../js/manager.js"></script>
