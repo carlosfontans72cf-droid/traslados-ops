@@ -8,7 +8,7 @@
   <link rel="stylesheet" href="/css/styles.css">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <meta name="theme-color" content="#1a3a6b">
-  <!-- Estilos mapa + botón pánico -->
+  <link rel="apple-touch-icon" href="/icons/icon-192.png">
   <style>
     #driver-map { height: 350px; width: 100%; border-radius:8px; }
     .panic-container { position:fixed; bottom:25px; right:25px; z-index:999; }
@@ -46,7 +46,7 @@
       </div>
     </div>
 
-    <h3 class="section-title">🗺️ Mi Ubicación</h3>
+    <h3 class="section-title">️ Mi Ubicación</h3>
     <div class="card"><div id="driver-map"></div></div>
 
     <h3 class="section-title">⚠️ Alertas</h3>
@@ -56,7 +56,7 @@
       </div>
       <div class="btn-group">
         <button class="btn btn-danger" onclick="sendAlert('🚨 Robo'); this.parentElement.closest('.panic-dropdown')?.classList.remove('show')">🔴 Robo</button>
-        <button class="btn btn-warning" onclick="sendAlert('⛽ Falta de Combustible')">🟡 Combustible</button>
+        <button class="btn btn-warning" onclick="sendAlert(' Falta de Combustible')">🟡 Combustible</button>
         <button class="btn btn-danger" onclick="sendAlert('🔧 Desperfecto Vehicular')">🔴 Desperfecto</button>
         <button class="btn btn-warning" onclick="sendAlert('✂️ Ruta Cortada')">🟡 Ruta Cortada</button>
         <button class="btn btn-danger" onclick="sendAlert('📍 Fuera de Ruta')">🔴 Fuera de Ruta</button>
@@ -65,24 +65,19 @@
 
   </div>
 
-  <!-- Botón PÁNICO FLOTANTE FUNCIONAL -->
   <div class="panic-container">
     <div class="panic-dropdown" id="panic-dropdown">
       <button class="alert-btn" onclick="sendAlert('🚨 Robo'); this.parentElement.classList.remove('show')">🔴 Robo</button>
-      <button class="alert-btn" onclick="sendAlert('⛽ Falta de Combustible'); this.parentElement.classList.remove('show')">🟡 Combustible</button>
+      <button class="alert-btn" onclick="sendAlert(' Falta de Combustible'); this.parentElement.classList.remove('show')">🟡 Combustible</button>
       <button class="alert-btn" onclick="sendAlert('🔧 Desperfecto Vehicular'); this.parentElement.classList.remove('show')">🔴 Desperfecto</button>
       <button class="alert-btn" onclick="sendAlert('✂️ Ruta Cortada'); this.parentElement.classList.remove('show')">🟡 Ruta Cortada</button>
-      <button class="alert-btn" onclick="sendAlert('📍 Fuera de Ruta'); this.parentElement.classList.remove('show')">🔴 Fuera de Ruta</button>
+      <button class="alert-btn" onclick="sendAlert('📍 Fuera de Ruta'); this.parentElement.classList.remove('show')"> Fuera de Ruta</button>
     </div>
     <button class="panic-btn" id="panic-btn">⚠️</button>
   </div>
 
-  <!-- Carga correcta librerías y código -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <script type="module" src="../js/driver.js"></script>
-<!-- Cambiar ../js/ → /js/ -->
-<script type="module" src="/js/driver.js"></script>
-<script type="module" src="/js/manager.js"></script>
-<script type="module" src="/js/owner.js"></script>
+  <script type="module" src="/js/driver.js"></script>
+<script type="module" src="https://static.cloudflareinsights.com/beacon.min.js/v4513226cdae34746b4dedf0b4dfa099e1781791509496" integrity="sha512-ZE9pZaUXND66v380QUtch/5sE9tPFh2zg45pR2PB0CVkCtOREv2AJKkSidISWkysEuQ0EH8faUU5du78bx87UQ==" data-cf-beacon='{"version":"2024.11.0","token":"1954b47c125f43f8b4338b3c4f804e4f"}' crossorigin="anonymous"></script>
 </body>
 </html>
