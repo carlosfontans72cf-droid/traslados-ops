@@ -9,9 +9,7 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <meta name="theme-color" content="#1a3a6b">
   <style>
-    /* Altura mapa */
     #live-map { height: 380px; width: 100%; border-radius:8px; }
-    /* ✅ Estilos botón ver contraseña */
     .form-group { position: relative; }
     .ver-contrasena {
       position: absolute;
@@ -25,7 +23,7 @@
       transition: color 0.2s;
     }
     .ver-contrasena:hover { color: #2563eb; }
-    .form-control { padding-right: 42px; } /* Espacio para el ícono */
+    .form-control { padding-right: 42px; }
   </style>
 </head>
 <body>
@@ -49,10 +47,9 @@
         <input type="text" id="driver-nombre" class="form-control" placeholder="Nombre">
         <input type="text" id="driver-apellido" class="form-control" placeholder="Apellido">
       </div>
-      <!-- ✅ Contraseña con botón ojo -->
       <div class="form-group" style="margin-top:10px">
         <input type="password" id="driver-password" class="form-control" placeholder="Contraseña">
-        <button type="button" class="ver-contrasena" data-target="driver-password">👁</button>
+        <button type="button" class="ver-contrasena" data-target="driver-password"></button>
       </div>
       <button id="btn-add-driver" class="btn btn-primary">🚐 Agregar Chofer</button>
     </div>
@@ -63,7 +60,6 @@
         <input type="text" id="manager-nombre" class="form-control" placeholder="Nombre">
         <input type="text" id="manager-apellido" class="form-control" placeholder="Apellido">
       </div>
-      <!-- ✅ Contraseña con botón ojo -->
       <div class="form-group" style="margin-top:10px">
         <input type="password" id="manager-password" class="form-control" placeholder="Contraseña">
         <button type="button" class="ver-contrasena" data-target="manager-password">👁</button>
@@ -72,7 +68,7 @@
     </div>
 
     <div class="card">
-      <div class="card-header">📋 Lista de Usuarios</div>
+      <div class="card-header"> Lista de Usuarios</div>
       <div style="overflow-x:auto">
         <table>
           <thead><tr><th>Nombre</th><th>Estado</th><th>Acciones</th></tr></thead>
@@ -95,7 +91,7 @@
     <h3 class="section-title">🗺️ Mapa en Vivo</h3>
     <div class="card"><div id="live-map"></div></div>
 
-    <h3 class="section-title">⚠️ Alertas</h3>
+    <h3 class="section-title">️ Alertas</h3>
     <div class="card">
       <button id="btn-refresh-alerts" class="btn btn-danger">🔄 Ver Alertas</button>
       <div id="alerts-list" style="margin-top:15px"></div>
@@ -124,7 +120,6 @@
 
   </div>
 
-  <!-- ✅ Funcionamiento del ojo -->
   <script>
     document.addEventListener('click', e => {
       const btn = e.target.closest('.ver-contrasena');
@@ -137,11 +132,7 @@
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
-  <script type="module" src="../js/manager.js"></script> 
-<!-- Cambiar ../js/ → /js/ -->
-
-<script type="module" src="/js/manager.js"></script>
-
-
+  <script type="module" src="/js/manager.js"></script>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a2b050daeacbd786',t:'MTc4NjcxNDI0NA=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script><script type="module" src="https://static.cloudflareinsights.com/beacon.min.js/v4513226cdae34746b4dedf0b4dfa099e1781791509496" integrity="sha512-ZE9pZaUXND66v380QUtch/5sE9tPFh2zg45pR2PB0CVkCtOREv2AJKkSidISWkysEuQ0EH8faUU5du78bx87UQ==" data-cf-beacon='{"version":"2024.11.0","token":"1954b47c125f43f8b4338b3c4f804e4f"}' crossorigin="anonymous"></script>
 </body>
 </html>
