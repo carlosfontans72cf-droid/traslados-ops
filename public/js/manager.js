@@ -8,8 +8,8 @@ import { showAlert, formatDate, exportToExcel } from './utils.js';
 
 let map, markers = {};
 
-// ✅ Mostrar nombre usuario, con protección por si falta elemento
-const nombreUsuario = sessionStorage.getItem('userName');
+// ✅ Mostrar nombre usuario (CORREGIDO: fullName en vez de userName)
+const nombreUsuario = sessionStorage.getItem('fullName');
 const infoElement = document.getElementById('user-info');
 if(infoElement && nombreUsuario) infoElement.textContent = `👔 ${nombreUsuario}`;
 
@@ -25,7 +25,7 @@ async function init() {
     ]);
     setupListeners();
   } catch (err) {
-    showAlert(`Error al cargar panel: ${err.message}`, 'danger');
+    showAlert(` Error al cargar panel: ${err.message}`, 'danger');
     console.error(err);
   }
 }
@@ -53,10 +53,13 @@ async function loadDrivers() {
       // Omitir dueño de la lista
       if (data.role === 'owner') return;
 
-      const etiquetaRol = data.role === 'manager' ? '👔 Administrador' : '🚐 Chofer';
+      const etiquetaRol = data.role === 'manager' ? ' Administrador' : '🚐 Chofer';
       const claseActivo = data.activo ? 'badge-active' : 'badge-inactive';
       const textoActivo = data.activo ? 'Activo' : 'Inactivo';
       const textoBoton = data.activo ? '⏸ Desactivar' : '▶ Activar';
+
+      // ✅ Mensaje de WhatsApp completo con credenciales y link
+      const mensajeWhatsApp = `Hola ${data.nombre} ${data.apellido}, te comunico desde la plataforma Traslados Vans.\n\nTus credenciales de acceso son:\nUsuario: ${data.nombre} ${data.apellido}\nContraseña: ${data.password}\n\nIngresá en: https://traslados-ops.vercel.app`;
 
       const fila = document.createElement('tr');
       fila.innerHTML = `
@@ -65,13 +68,13 @@ async function loadDrivers() {
         <td>
           <button class="btn btn-sm btn-info" onclick="toggleUser('${d.id}', ${!data.activo})">${textoBoton}</button>
           <button class="btn btn-sm btn-danger" onclick="deleteUser('${d.id}')">🗑 Eliminar</button>
-          <a href="https://wa.me/?text=Hola%20${encodeURIComponent(data.nombre)}%2C%20te%20comunico%20desde%20la%20plataforma" target="_blank" class="btn btn-sm btn-success">📱 WhatsApp</a>
+          <a href="https://wa.me/?text=${encodeURIComponent(mensajeWhatsApp)}" target="_blank" class="btn btn-sm btn-success">📱 WhatsApp</a>
         </td>
       `;
       tbody.appendChild(fila);
     });
   } catch (err) {
-    showAlert(`No se pudo cargar lista: ${err.message}`, 'danger');
+    showAlert(` No se pudo cargar lista: ${err.message}`, 'danger');
   }
 }
 
@@ -82,7 +85,7 @@ window.addDriver = async () => {
   const clave = document.getElementById('driver-password').value;
 
   if (!nombre || !apellido || !clave) {
-    return showAlert('⚠️ Completa todos los datos del chofer', 'warning');
+    return showAlert('️ Completa todos los datos del chofer', 'warning');
   }
 
   try {
@@ -112,7 +115,7 @@ window.addManager = async () => {
   const clave = document.getElementById('manager-password').value;
 
   if (!nombre || !apellido || !clave) {
-    return showAlert('⚠️ Completa todos los datos del administrador', 'warning');
+    return showAlert('️ Completa todos los datos del administrador', 'warning');
   }
 
   try {
@@ -142,7 +145,7 @@ window.toggleUser = async (idUsuario, nuevoEstado) => {
     loadDrivers();
     showAlert('✅ Estado actualizado', 'success');
   } catch (err) {
-    showAlert(`❌ No se pudo cambiar estado: ${err.message}`, 'danger');
+    showAlert(` No se pudo cambiar estado: ${err.message}`, 'danger');
   }
 };
 
@@ -206,9 +209,9 @@ function initLiveMap() {
 }
 
 function escucharUbicacionesChoferes() {
+  // ✅ Muestra choferes Y managers activos en el mapa
   const consultaUbic = query(
     collection(db, 'users'),
-    where('role', '==', 'driver'),
     where('activo', '==', true)
   );
 
@@ -222,9 +225,10 @@ function escucharUbicacionesChoferes() {
         if (markers[idChofer]) {
           markers[idChofer].setLatLng([datos.lat, datos.lng]);
         } else {
+          const icono = datos.role === 'manager' ? '👔' : '🚐';
           markers[idChofer] = L.marker([datos.lat, datos.lng])
             .addTo(map)
-            .bindPopup(`<b>${datos.nombre} ${datos.apellido}</b><br>🟢 En servicio`)
+            .bindPopup(`<b>${icono} ${datos.nombre} ${datos.apellido}</b><br>🟢 ${datos.role === 'manager' ? 'Administrador' : 'Chofer'} en servicio`)
             .openPopup();
         }
       }
@@ -256,7 +260,7 @@ async function loadAlerts() {
       tarjeta.className = 'card alert-card';
       tarjeta.innerHTML = `
         <strong style="color:var(--alert-red)">⚠️ ${datosAlerta.tipo || 'Alerta'}</strong> - ${datosAlerta.descripcion}
-        <br><small>👤 ${datosAlerta.userName || 'Sin nombre'} | 🕒 ${formatDate(datosAlerta.createdAt)}</small>
+        <br><small>  ${datosAlerta.nombreConductor || datosAlerta.userName || 'Sin nombre'} | 🕒 ${formatDate(datosAlerta.fechaHora || datosAlerta.createdAt)}</small>
         <div class="btn-group" style="margin-top:10px">
           <button class="btn btn-sm btn-danger" onclick="deleteAlert('${d.id}')">🗑 Borrar</button>
           <button class="btn btn-sm btn-info" onclick="saveAlert('${d.id}')">💾 Guardar</button>
@@ -265,7 +269,7 @@ async function loadAlerts() {
       contenedorAlertas.appendChild(tarjeta);
     });
   } catch (err) {
-    showAlert(`❌ No se pudieron cargar alertas: ${err.message}`, 'danger');
+    showAlert(` No se pudieron cargar alertas: ${err.message}`, 'danger');
   }
 }
 
@@ -275,7 +279,7 @@ window.deleteAlert = async (idAlerta) => {
     loadAlerts();
     showAlert('✅ Alerta eliminada', 'success');
   } catch (err) {
-    showAlert(`❌ Error al borrar: ${err.message}`, 'danger');
+    showAlert(` Error al borrar: ${err.message}`, 'danger');
   }
 };
 
@@ -306,10 +310,10 @@ async function loadHistory() {
       const datosViaje = d.data();
       const fila = document.createElement('tr');
       fila.innerHTML = `
-        <td>${datosViaje.userName || 'Sin asignar'}</td>
+        <td>${datosViaje.nombreConductor || datosViaje.userName || 'Sin asignar'}</td>
         <td>${datosViaje.origen} ➡ ${datosViaje.destino}</td>
-        <td>$ ${datosViaje.costo || 0}</td>
-        <td>${formatDate(datosViaje.createdAt)}</td>
+        <td>$ ${datosViaje.costoTotal || datosViaje.costo || 0}</td>
+        <td>${formatDate(datosViaje.fechaInicio || datosViaje.createdAt)}</td>
         <td><button class="btn btn-sm btn-danger" onclick="deleteTrip('${d.id}')">🗑 Eliminar</button></td>
       `;
       tablaHistorial.appendChild(fila);
@@ -346,7 +350,7 @@ function exportHistory() {
   });
   if (filas.length === 0) return showAlert('ℹ️ No hay registros para exportar', 'warning');
   exportToExcel(filas, 'historial_traslados.xlsx');
-  showAlert('📊 Exportado correctamente a Excel', 'success');
+  showAlert(' Exportado correctamente a Excel', 'success');
 }
 
 // ========== DATOS / ESTADÍSTICAS ==========
@@ -362,7 +366,7 @@ async function loadStats() {
     if(statDrivers) statDrivers.textContent = usuarios.size;
     if(statTrips) statTrips.textContent = viajes.size;
   } catch (err) {
-    console.warn('No se pudieron cargar estadísticas:', err);
+    console.warn('️ No se pudieron cargar estadísticas:', err);
   }
 }
 

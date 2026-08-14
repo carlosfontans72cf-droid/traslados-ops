@@ -1,4 +1,4 @@
-// /js/owner.js
+// /js/manager.js
 import { db } from './firebase-config.js';
 import {
   collection, getDocs, addDoc, deleteDoc, doc, updateDoc,
@@ -8,12 +8,12 @@ import { showAlert, formatDate, exportToExcel } from './utils.js';
 
 let map, markers = {};
 
-// ✅ Mostrar nombre usuario con protección (corregido: fullName en vez de userName)
+// ✅ Mostrar nombre usuario (CORREGIDO: fullName en vez de userName)
 const nombreUsuario = sessionStorage.getItem('fullName');
 const infoElement = document.getElementById('user-info');
-if(infoElement && nombreUsuario) infoElement.textContent = `👑 ${nombreUsuario}`;
+if(infoElement && nombreUsuario) infoElement.textContent = `👔 ${nombreUsuario}`;
 
-// ========== INICIO GENERAL ==========
+// ✅ Inicio general
 async function init() {
   try {
     await Promise.all([
@@ -30,6 +30,7 @@ async function init() {
   }
 }
 
+// ✅ Asignar eventos botones
 function setupListeners() {
   document.getElementById('btn-add-driver')?.addEventListener('click', addDriver);
   document.getElementById('btn-add-manager')?.addEventListener('click', addManager);
@@ -37,8 +38,6 @@ function setupListeners() {
   document.getElementById('btn-refresh-alerts')?.addEventListener('click', loadAlerts);
   document.getElementById('btn-load-history')?.addEventListener('click', loadHistory);
   document.getElementById('btn-export-excel')?.addEventListener('click', exportHistory);
-  document.getElementById('btn-block-app')?.addEventListener('click', blockApp);
-  document.getElementById('btn-unblock-app')?.addEventListener('click', unblockApp);
 }
 
 // ========== GESTION USUARIOS: CHOFERES / ADMINISTRADORES ==========
@@ -51,10 +50,10 @@ async function loadDrivers() {
     const snap = await getDocs(collection(db, 'users'));
     snap.forEach(d => {
       const data = d.data();
-      // Omitir al propio dueño de la lista
+      // Omitir dueño de la lista
       if (data.role === 'owner') return;
 
-      const etiquetaRol = data.role === 'manager' ? '👔 Administrador' : '🚐 Chofer';
+      const etiquetaRol = data.role === 'manager' ? ' Administrador' : '🚐 Chofer';
       const claseActivo = data.activo ? 'badge-active' : 'badge-inactive';
       const textoActivo = data.activo ? 'Activo' : 'Inactivo';
       const textoBoton = data.activo ? '⏸ Desactivar' : '▶ Activar';
@@ -75,7 +74,7 @@ async function loadDrivers() {
       tbody.appendChild(fila);
     });
   } catch (err) {
-    showAlert(`❌ No se pudo cargar lista: ${err.message}`, 'danger');
+    showAlert(` No se pudo cargar lista: ${err.message}`, 'danger');
   }
 }
 
@@ -86,7 +85,7 @@ window.addDriver = async () => {
   const clave = document.getElementById('driver-password').value;
 
   if (!nombre || !apellido || !clave) {
-    return showAlert('⚠️ Completa todos los datos del chofer', 'warning');
+    return showAlert('️ Completa todos los datos del chofer', 'warning');
   }
 
   try {
@@ -116,7 +115,7 @@ window.addManager = async () => {
   const clave = document.getElementById('manager-password').value;
 
   if (!nombre || !apellido || !clave) {
-    return showAlert('⚠️ Completa todos los datos del administrador', 'warning');
+    return showAlert('️ Completa todos los datos del administrador', 'warning');
   }
 
   try {
@@ -143,11 +142,10 @@ window.addManager = async () => {
 window.toggleUser = async (idUsuario, nuevoEstado) => {
   try {
     await updateDoc(doc(db, 'users', idUsuario), { activo: nuevoEstado });
-    const mensaje = nuevoEstado ? '✅ Usuario activado' : '⏸ Usuario desactivado';
-    showAlert(mensaje, 'info');
     loadDrivers();
+    showAlert('✅ Estado actualizado', 'success');
   } catch (err) {
-    showAlert(`❌ No se pudo cambiar estado: ${err.message}`, 'danger');
+    showAlert(` No se pudo cambiar estado: ${err.message}`, 'danger');
   }
 };
 
@@ -156,8 +154,8 @@ window.deleteUser = async (idUsuario) => {
   if (!confirm('¿Seguro que deseas eliminar este usuario?')) return;
   try {
     await deleteDoc(doc(db, 'users', idUsuario));
-    showAlert('🗑 Usuario eliminado', 'success');
     loadDrivers();
+    showAlert('🗑 Usuario eliminado', 'success');
   } catch (err) {
     showAlert(`❌ No se pudo eliminar: ${err.message}`, 'danger');
   }
@@ -169,7 +167,7 @@ async function loadPrices() {
   const precioDoc = await getDoc(precioRef);
   if (precioDoc.exists()) {
     const p = precioDoc.data();
-    // Asignar valores con protección de elementos
+    // Asignar valores con protección
     const elPersona = document.getElementById('price-persona');
     const elZona = document.getElementById('price-zona');
     const elKm = document.getElementById('price-km');
@@ -211,9 +209,9 @@ function initLiveMap() {
 }
 
 function escucharUbicacionesChoferes() {
+  // ✅ Muestra choferes Y managers activos en el mapa
   const consultaUbic = query(
     collection(db, 'users'),
-    where('role', '==', 'driver'),
     where('activo', '==', true)
   );
 
@@ -227,9 +225,10 @@ function escucharUbicacionesChoferes() {
         if (markers[idChofer]) {
           markers[idChofer].setLatLng([datos.lat, datos.lng]);
         } else {
+          const icono = datos.role === 'manager' ? '👔' : '🚐';
           markers[idChofer] = L.marker([datos.lat, datos.lng])
             .addTo(map)
-            .bindPopup(`<b>${datos.nombre} ${datos.apellido}</b><br>🟢 En servicio`)
+            .bindPopup(`<b>${icono} ${datos.nombre} ${datos.apellido}</b><br>🟢 ${datos.role === 'manager' ? 'Administrador' : 'Chofer'} en servicio`)
             .openPopup();
         }
       }
@@ -261,7 +260,7 @@ async function loadAlerts() {
       tarjeta.className = 'card alert-card';
       tarjeta.innerHTML = `
         <strong style="color:var(--alert-red)">⚠️ ${datosAlerta.tipo || 'Alerta'}</strong> - ${datosAlerta.descripcion}
-        <br><small> ${datosAlerta.userName || 'Sin nombre'} | 🕒 ${formatDate(datosAlerta.createdAt)}</small>
+        <br><small>  ${datosAlerta.nombreConductor || datosAlerta.userName || 'Sin nombre'} | 🕒 ${formatDate(datosAlerta.fechaHora || datosAlerta.createdAt)}</small>
         <div class="btn-group" style="margin-top:10px">
           <button class="btn btn-sm btn-danger" onclick="deleteAlert('${d.id}')">🗑 Borrar</button>
           <button class="btn btn-sm btn-info" onclick="saveAlert('${d.id}')">💾 Guardar</button>
@@ -270,7 +269,7 @@ async function loadAlerts() {
       contenedorAlertas.appendChild(tarjeta);
     });
   } catch (err) {
-    showAlert(`❌ No se pudieron cargar alertas: ${err.message}`, 'danger');
+    showAlert(` No se pudieron cargar alertas: ${err.message}`, 'danger');
   }
 }
 
@@ -280,7 +279,7 @@ window.deleteAlert = async (idAlerta) => {
     loadAlerts();
     showAlert('✅ Alerta eliminada', 'success');
   } catch (err) {
-    showAlert(`❌ Error al borrar: ${err.message}`, 'danger');
+    showAlert(` Error al borrar: ${err.message}`, 'danger');
   }
 };
 
@@ -311,10 +310,10 @@ async function loadHistory() {
       const datosViaje = d.data();
       const fila = document.createElement('tr');
       fila.innerHTML = `
-        <td>${datosViaje.userName || 'Sin asignar'}</td>
+        <td>${datosViaje.nombreConductor || datosViaje.userName || 'Sin asignar'}</td>
         <td>${datosViaje.origen} ➡ ${datosViaje.destino}</td>
-        <td>$ ${datosViaje.costo || 0}</td>
-        <td>${formatDate(datosViaje.createdAt)}</td>
+        <td>$ ${datosViaje.costoTotal || datosViaje.costo || 0}</td>
+        <td>${formatDate(datosViaje.fechaInicio || datosViaje.createdAt)}</td>
         <td><button class="btn btn-sm btn-danger" onclick="deleteTrip('${d.id}')">🗑 Eliminar</button></td>
       `;
       tablaHistorial.appendChild(fila);
@@ -351,55 +350,29 @@ function exportHistory() {
   });
   if (filas.length === 0) return showAlert('ℹ️ No hay registros para exportar', 'warning');
   exportToExcel(filas, 'historial_traslados.xlsx');
-  showAlert('📊 Exportado correctamente a Excel', 'success');
+  showAlert(' Exportado correctamente a Excel', 'success');
 }
 
-// ========== BLOQUEO / DESBLOQUEO GENERAL (SOLO DUEÑO) ==========
-async function blockApp() {
-  if (!confirm('⚠️ ¿Seguro que quieres BLOQUEAR el acceso a TODOS los usuarios?')) return;
-  try {
-    await setDoc(doc(db, 'config', 'appStatus'), {
-      blocked: true,
-      blockedBy: sessionStorage.getItem('userId'),
-      blockedByName: sessionStorage.getItem('fullName'),
-      fechaBloqueo: serverTimestamp()
-    });
-    showAlert('🔒 Aplicación BLOQUEADA exitosamente', 'danger');
-  } catch (err) {
-    showAlert(`❌ No se pudo bloquear: ${err.message}`, 'danger');
-  }
-}
-
-async function unblockApp() {
-  try {
-    await setDoc(doc(db, 'config', 'appStatus'), {
-      blocked: false,
-      fechaDesbloqueo: serverTimestamp()
-    }, { merge: true });
-    showAlert('✅ Aplicación DESBLOQUEADA exitosamente', 'success');
-  } catch (err) {
-    showAlert(`❌ No se pudo desbloquear: ${err.message}`, 'danger');
-  }
-}
-
-// ========== DATOS / ESTADÍSTICAS GENERALES ==========
+// ========== DATOS / ESTADÍSTICAS ==========
 async function loadStats() {
   try {
-    const [usuariosSnap, viajesSnap, alertasSnap] = await Promise.all([
+    const [usuarios, viajes, alertas] = await Promise.all([
       getDocs(collection(db, 'users')),
       getDocs(collection(db, 'trips')),
       getDocs(collection(db, 'alerts'))
     ]);
-    const statChoferes = document.getElementById('stat-drivers');
-    const statViajes = document.getElementById('stat-trips');
-    const statAlertas = document.getElementById('stat-alerts');
-    if(statChoferes) statChoferes.textContent = usuariosSnap.size;
-    if(statViajes) statViajes.textContent = viajesSnap.size;
-    if(statAlertas) statAlertas.textContent = alertasSnap.size;
+    const statDrivers = document.getElementById('stat-drivers');
+    const statTrips = document.getElementById('stat-trips');
+    if(statDrivers) statDrivers.textContent = usuarios.size;
+    if(statTrips) statTrips.textContent = viajes.size;
   } catch (err) {
-    console.warn('⚠️ No se pudieron cargar estadísticas:', err);
+    console.warn('️ No se pudieron cargar estadísticas:', err);
   }
 }
 
-// INICIAR TODO AL CARGAR EL PANEL
+// ========== RESTRICCIÓN FUNCIONES EXCLUSIVAS DUEÑO ==========
+window.blockApp = () => showAlert('⛔ Solo el propietario puede bloquear la aplicación', 'warning');
+window.unblockApp = () => showAlert('⛔ Solo el propietario puede desbloquear la aplicación', 'warning');
+
+// INICIAR TODO AL CARGAR
 init();

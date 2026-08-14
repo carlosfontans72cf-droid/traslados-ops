@@ -4,9 +4,9 @@ import { doc, getDoc, updateDoc, collection, addDoc, query, where, getDocs, serv
 from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 import { showAlert, getCurrentLocation, calculateRouteCost } from './utils.js';
 
-// Recuperar datos sesión
+// Recuperar datos sesión (CORREGIDO: fullName en vez de userName)
 let driverId = sessionStorage.getItem('userId');
-let driverName = sessionStorage.getItem('userName');
+let driverName = sessionStorage.getItem('fullName');
 
 // Redirigir si NO hay sesión activa
 if (!driverId || !driverName) {
@@ -51,7 +51,7 @@ async function initMap() {
 // ========== SEGUIMIENTO GPS ACTUALIZA EN TIEMPO REAL ==========
 function startGPS() {
   if (!navigator.geolocation) {
-    showAlert("❌ GPS no soportado en este dispositivo", "warning");
+    showAlert("GPS no soportado en este dispositivo", "warning");
     return;
   }
   watchId = navigator.geolocation.watchPosition(
@@ -116,7 +116,7 @@ window.calculateCost = async () => {
 // ========== COMENZAR VIAJE ==========
 window.startTrip = async () => {
   if (tripActive) {
-    return showAlert("⚠️ Ya estás realizando un viaje ahora mismo", "warning");
+    return showAlert("️ Ya estás realizando un viaje ahora mismo", "warning");
   }
   if (!window._ultimoCalculo) {
     return showAlert("ℹ️ Primero calcula el costo antes de iniciar", "warning");
@@ -142,7 +142,7 @@ window.startTrip = async () => {
 
     tripActive = true;
     tripStartTime = Date.now();
-    showAlert("🚐 ¡Viaje INICIADO con éxito!", "success");
+    showAlert(" ¡Viaje INICIADO con éxito!", "success");
 
   } catch(err) {
     showAlert(`❌ No se pudo iniciar: ${err.message}`, "danger");
