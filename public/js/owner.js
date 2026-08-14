@@ -8,8 +8,8 @@ import { showAlert, formatDate, exportToExcel } from './utils.js';
 
 let map, markers = {};
 
-// ✅ Mostrar nombre usuario con protección
-const nombreUsuario = sessionStorage.getItem('userName');
+// ✅ Mostrar nombre usuario con protección (corregido: fullName en vez de userName)
+const nombreUsuario = sessionStorage.getItem('fullName');
 const infoElement = document.getElementById('user-info');
 if(infoElement && nombreUsuario) infoElement.textContent = `👑 ${nombreUsuario}`;
 
@@ -25,7 +25,7 @@ async function init() {
     ]);
     setupListeners();
   } catch (err) {
-    showAlert(`❌ Error al cargar panel: ${err.message}`, 'danger');
+    showAlert(` Error al cargar panel: ${err.message}`, 'danger');
     console.error(err);
   }
 }
@@ -59,6 +59,9 @@ async function loadDrivers() {
       const textoActivo = data.activo ? 'Activo' : 'Inactivo';
       const textoBoton = data.activo ? '⏸ Desactivar' : '▶ Activar';
 
+      // ✅ Mensaje de WhatsApp completo con credenciales y link
+      const mensajeWhatsApp = `Hola ${data.nombre} ${data.apellido}, te comunico desde la plataforma Traslados Vans.\n\nTus credenciales de acceso son:\nUsuario: ${data.nombre} ${data.apellido}\nContraseña: ${data.password}\n\nIngresá en: https://traslados-ops.vercel.app`;
+
       const fila = document.createElement('tr');
       fila.innerHTML = `
         <td>${data.nombre} ${data.apellido} <small>(${etiquetaRol})</small></td>
@@ -66,7 +69,7 @@ async function loadDrivers() {
         <td>
           <button class="btn btn-sm btn-info" onclick="toggleUser('${d.id}', ${!data.activo})">${textoBoton}</button>
           <button class="btn btn-sm btn-danger" onclick="deleteUser('${d.id}')">🗑 Eliminar</button>
-          <a href="https://wa.me/?text=${encodeURIComponent(`Hola ${data.nombre}, te comunico desde la plataforma`)}" target="_blank" class="btn btn-sm btn-success">📱 WhatsApp</a>
+          <a href="https://wa.me/?text=${encodeURIComponent(mensajeWhatsApp)}" target="_blank" class="btn btn-sm btn-success">📱 WhatsApp</a>
         </td>
       `;
       tbody.appendChild(fila);
@@ -258,7 +261,7 @@ async function loadAlerts() {
       tarjeta.className = 'card alert-card';
       tarjeta.innerHTML = `
         <strong style="color:var(--alert-red)">⚠️ ${datosAlerta.tipo || 'Alerta'}</strong> - ${datosAlerta.descripcion}
-        <br><small>👤 ${datosAlerta.userName || 'Sin nombre'} | 🕒 ${formatDate(datosAlerta.createdAt)}</small>
+        <br><small> ${datosAlerta.userName || 'Sin nombre'} | 🕒 ${formatDate(datosAlerta.createdAt)}</small>
         <div class="btn-group" style="margin-top:10px">
           <button class="btn btn-sm btn-danger" onclick="deleteAlert('${d.id}')">🗑 Borrar</button>
           <button class="btn btn-sm btn-info" onclick="saveAlert('${d.id}')">💾 Guardar</button>
@@ -358,7 +361,7 @@ async function blockApp() {
     await setDoc(doc(db, 'config', 'appStatus'), {
       blocked: true,
       blockedBy: sessionStorage.getItem('userId'),
-      blockedByName: sessionStorage.getItem('userName'),
+      blockedByName: sessionStorage.getItem('fullName'),
       fechaBloqueo: serverTimestamp()
     });
     showAlert('🔒 Aplicación BLOQUEADA exitosamente', 'danger');
