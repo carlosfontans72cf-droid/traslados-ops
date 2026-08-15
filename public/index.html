@@ -91,11 +91,10 @@
   </script>
 <script>
   // Forzar eliminación del SW viejo al cargar
-  if ('serviceWorker' in navigator) {
+  {
     navigator.serviceWorker.getRegistrations().then(function(registrations) {
-      registrations.forEach(function(registration) {
-        if (registration.active && registration.active.scriptURL.includes('sw.js')) {
-          registration.unregister();
+      registrations.forEach(function(registration) 
+        
         }
       });
     });
