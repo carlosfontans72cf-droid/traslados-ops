@@ -20,7 +20,6 @@ export function showAlert(message, type = 'info') {
   div.textContent = message;
   document.body.appendChild(div);
 
-  // Desvanecer y quitar
   setTimeout(() => {
     div.style.opacity = '0';
     div.style.transform = 'translateY(-10px)';
@@ -47,15 +46,15 @@ export function formatDate(timestamp) {
 export function getCurrentLocation() {
   return new Promise((resolve, reject) => {
     if (!navigator.geolocation) {
-      return reject(new Error('❌ Geolocalización no soportada en este dispositivo'));
+      return reject(new Error(' Geolocalización no soportada'));
     }
     navigator.geolocation.getCurrentPosition(
       pos => resolve({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
       err => {
         let mensaje = 'No se pudo obtener ubicación';
-        if(err.code===1) mensaje='⚠️ Permiso denegado para ubicación';
-        else if(err.code===2) mensaje='⚠️ Señal GPS no disponible';
-        else if(err.code===3) mensaje='⏱ Tiempo agotado buscando ubicación';
+        if(err.code===1) mensaje=' Permiso denegado para ubicación';
+        else if(err.code===2) mensaje=' Señal GPS no disponible';
+        else if(err.code===3) mensaje=' Tiempo agotado buscando ubicación';
         reject(new Error(mensaje));
       },
       { enableHighAccuracy: true, timeout: 12000, maximumAge:0 }
@@ -64,55 +63,66 @@ export function getCurrentLocation() {
 }
 
 // 🚘 Calcular distancia, duración y costo del viaje
+// ✅ MEJORADO: Más tolerante con direcciones, agrega ", Argentina" si no encuentra
 export async function calculateRouteCost(origen, destino, precios, personas = 1) {
-  // ✅ Validar entradas antes de consultar
   if (!origen?.trim() || !destino?.trim()) {
-    throw new Error('⚠️ Escribe correctamente Origen y Destino');
+    throw new Error('️ Escribí correctamente Origen y Destino');
   }
 
-  // 🔍 Geocodificar ORIGEN
-  let origRes;
-  try {
-    origRes = await fetch(
-      `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(origen.trim())}&limit=1`,
-      { headers: { 'Accept-Language': 'es' } }
-    ).then(r => r.json());
-  } catch { throw new Error('🌐 Error buscando ubicación: revisa conexión'); }
+  // Helper para geocodificar con fallback a agregar ", Argentina"
+  async function geocode(query, label) {
+    let res;
+    try {
+      res = await fetch(
+        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=3`,
+        { headers: { 'Accept-Language': 'es' } }
+      ).then(r => r.json());
+    } catch {
+      throw new Error(` Error de conexión al buscar ${label}`);
+    }
 
-  if (!Array.isArray(origRes) || origRes.length === 0) {
-    throw new Error(`📍 No encontré: ${origen}`);
+    if (!Array.isArray(res) || res.length === 0) {
+      // Intentar agregando ", Argentina" al final
+      try {
+        res = await fetch(
+          `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query + ', Argentina')}&limit=3`,
+          { headers: { 'Accept-Language': 'es' } }
+        ).then(r => r.json());
+      } catch {
+        throw new Error(`🌐 Error de conexión al buscar ${label}`);
+      }
+    }
+
+    if (!Array.isArray(res) || res.length === 0) {
+      throw new Error(`📍 No encontré: "${query}". Intentá ser más específico (calle, número, ciudad, provincia)`);
+    }
+
+    return res;
   }
 
-  // 🔍 Geocodificar DESTINO
-  let destRes;
-  try {
-    destRes = await fetch(
-      `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(destino.trim())}&limit=1`,
-      { headers: { 'Accept-Language': 'es' } }
-    ).then(r => r.json());
-  } catch { throw new Error('🌐 Error buscando destino: revisa conexión'); }
-
-  if (!Array.isArray(destRes) || destRes.length === 0) {
-    throw new Error(`📍 No encontré: ${destino}`);
-  }
-
-  // Extraer coordenadas
+  // Geocodificar ORIGEN
+  const origRes = await geocode(origen.trim(), 'origen');
   const oLat = parseFloat(origRes[0].lat);
   const oLng = parseFloat(origRes[0].lon);
+
+  // Geocodificar DESTINO
+  const destRes = await geocode(destino.trim(), 'destino');
   const dLat = parseFloat(destRes[0].lat);
   const dLng = parseFloat(destRes[0].lon);
 
   if(isNaN(oLat)||isNaN(oLng)||isNaN(dLat)||isNaN(dLng)){
-    throw new Error('❌ Coordenadas inválidas en una dirección');
+    throw new Error(' Coordenadas inválidas en una dirección');
   }
 
-  // 🛣️ Consultar ruta y distancia
+  // 🛣️ Consultar ruta y distancia (OSRM público)
   let routeRes;
   try {
     routeRes = await fetch(
       `https://router.project-osrm.org/route/v1/driving/${oLng},${oLat};${dLng},${dLat}?overview=false`
     ).then(r => r.json());
-  } catch { throw new Error('🛣️ Servicio de rutas no disponible en este momento'); }
+  } catch {
+    throw new Error('🛣️ Servicio de rutas no disponible, intentá en unos segundos');
+  }
 
   if (!routeRes?.routes?.length) {
     throw new Error('❌ No se pudo calcular la ruta entre los puntos');
@@ -121,7 +131,7 @@ export async function calculateRouteCost(origen, destino, precios, personas = 1)
   const distanceKm = Number((routeRes.routes[0].distance / 1000).toFixed(2));
   const durationHours = Number((routeRes.routes[0].duration / 3600).toFixed(2));
 
-  // 💰 Cálculo seguro con valores por defecto
+  // 💰 Cálculo de costo
   const pKm = Number(precios?.porKm) || 0;
   const pHora = Number(precios?.porHora) || 0;
   const pPersona = Number(precios?.porPersona) || 0;
@@ -144,10 +154,10 @@ export async function calculateRouteCost(origen, destino, precios, personas = 1)
   };
 }
 
-// 📤 Exportar lista/datos a Excel
+//  Exportar a Excel
 export function exportToExcel(data, filename = 'historial_traslados.xlsx') {
   if (typeof XLSX === 'undefined') {
-    return showAlert('📚 Librería Excel no cargada, verifica en el HTML', 'warning');
+    return showAlert(' Librería Excel no cargada', 'warning');
   }
   if (!Array.isArray(data) || data.length === 0) {
     return showAlert('ℹ️ No hay registros para generar archivo', 'info');
@@ -157,7 +167,7 @@ export function exportToExcel(data, filename = 'historial_traslados.xlsx') {
     const libro = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(libro, hoja, 'Datos');
     XLSX.writeFile(libro, filename);
-    showAlert('📊 Archivo Excel generado correctamente', 'success');
+    showAlert(' Archivo Excel generado correctamente', 'success');
   } catch (err) {
     showAlert(`❌ No se pudo exportar: ${err.message}`, 'danger');
   }

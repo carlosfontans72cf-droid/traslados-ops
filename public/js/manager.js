@@ -4,16 +4,15 @@ import {
   collection, getDocs, addDoc, deleteDoc, doc, updateDoc,
   query, where, getDoc, setDoc, orderBy, limit, serverTimestamp, onSnapshot
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-import { showAlert, formatDate, exportToExcel } from './utils.js';
+import { showAlert, formatDate, exportToExcel, calculateRouteCost } from './utils.js';
 
 let map, markers = {};
 
-// ✅ Mostrar nombre usuario (CORREGIDO: fullName en vez de userName)
+// ✅ Mostrar nombre usuario
 const nombreUsuario = sessionStorage.getItem('fullName');
 const infoElement = document.getElementById('user-info');
 if(infoElement && nombreUsuario) infoElement.textContent = `👔 ${nombreUsuario}`;
 
-// ✅ Inicio general
 async function init() {
   try {
     await Promise.all([
@@ -25,12 +24,11 @@ async function init() {
     ]);
     setupListeners();
   } catch (err) {
-    showAlert(` Error al cargar panel: ${err.message}`, 'danger');
+    showAlert(`❌ Error al cargar panel: ${err.message}`, 'danger');
     console.error(err);
   }
 }
 
-// ✅ Asignar eventos botones
 function setupListeners() {
   document.getElementById('btn-add-driver')?.addEventListener('click', addDriver);
   document.getElementById('btn-add-manager')?.addEventListener('click', addManager);
@@ -38,27 +36,41 @@ function setupListeners() {
   document.getElementById('btn-refresh-alerts')?.addEventListener('click', loadAlerts);
   document.getElementById('btn-load-history')?.addEventListener('click', loadHistory);
   document.getElementById('btn-export-excel')?.addEventListener('click', exportHistory);
+  // ✅ Nuevos listeners para crear viaje
+  document.getElementById('btn-calc-trip')?.addEventListener('click', calculateManagerTrip);
+  document.getElementById('btn-create-trip')?.addEventListener('click', createManagerTrip);
 }
 
-// ========== GESTION USUARIOS: CHOFERES / ADMINISTRADORES ==========
+// ========== GESTION USUARIOS ==========
 async function loadDrivers() {
   const tbody = document.getElementById('drivers-list');
   if(!tbody) return;
   tbody.innerHTML = '';
 
+  const selectChofer = document.getElementById('trip-chofer');
+  if(selectChofer) {
+    selectChofer.innerHTML = '<option value="">-- Seleccionar chofer --</option>';
+  }
+
   try {
     const snap = await getDocs(collection(db, 'users'));
     snap.forEach(d => {
       const data = d.data();
-      // Omitir dueño de la lista
       if (data.role === 'owner') return;
 
-      const etiquetaRol = data.role === 'manager' ? ' Administrador' : '🚐 Chofer';
+      const etiquetaRol = data.role === 'manager' ? '👔 Administrador' : '🚐 Chofer';
       const claseActivo = data.activo ? 'badge-active' : 'badge-inactive';
       const textoActivo = data.activo ? 'Activo' : 'Inactivo';
       const textoBoton = data.activo ? '⏸ Desactivar' : '▶ Activar';
 
-      // ✅ Mensaje de WhatsApp completo con credenciales y link
+      if(selectChofer && data.role === 'driver' && data.activo) {
+        const option = document.createElement('option');
+        option.value = d.id;
+        option.textContent = `${data.nombre} ${data.apellido}`;
+        option.dataset.nombre = `${data.nombre} ${data.apellido}`;
+        selectChofer.appendChild(option);
+      }
+
       const mensajeWhatsApp = `Hola ${data.nombre} ${data.apellido}, te comunico desde la plataforma Traslados Vans.\n\nTus credenciales de acceso son:\nUsuario: ${data.nombre} ${data.apellido}\nContraseña: ${data.password}\n\nIngresá en: https://traslados-ops.vercel.app`;
 
       const fila = document.createElement('tr');
@@ -74,11 +86,10 @@ async function loadDrivers() {
       tbody.appendChild(fila);
     });
   } catch (err) {
-    showAlert(` No se pudo cargar lista: ${err.message}`, 'danger');
+    showAlert(`❌ No se pudo cargar lista: ${err.message}`, 'danger');
   }
 }
 
-// Agregar nuevo chofer
 window.addDriver = async () => {
   const nombre = document.getElementById('driver-nombre').value.trim();
   const apellido = document.getElementById('driver-apellido').value.trim();
@@ -90,44 +101,35 @@ window.addDriver = async () => {
 
   try {
     await addDoc(collection(db, 'users'), {
-      nombre: nombre,
-      apellido: apellido,
-      password: clave,
-      role: 'driver',
-      activo: true,
+      nombre, apellido, password: clave,
+      role: 'driver', activo: true,
       createdAt: serverTimestamp()
     });
-    // Limpiar campos
     document.getElementById('driver-nombre').value = '';
     document.getElementById('driver-apellido').value = '';
     document.getElementById('driver-password').value = '';
     showAlert('✅ Chofer registrado correctamente', 'success');
     loadDrivers();
   } catch (err) {
-    showAlert(`❌ Error al agregar: ${err.message}`, 'danger');
+    showAlert(` Error al agregar: ${err.message}`, 'danger');
   }
 };
 
-// Agregar administrador
 window.addManager = async () => {
   const nombre = document.getElementById('manager-nombre').value.trim();
   const apellido = document.getElementById('manager-apellido').value.trim();
   const clave = document.getElementById('manager-password').value;
 
   if (!nombre || !apellido || !clave) {
-    return showAlert('️ Completa todos los datos del administrador', 'warning');
+    return showAlert('⚠️ Completa todos los datos del administrador', 'warning');
   }
 
   try {
     await addDoc(collection(db, 'users'), {
-      nombre: nombre,
-      apellido: apellido,
-      password: clave,
-      role: 'manager',
-      activo: true,
+      nombre, apellido, password: clave,
+      role: 'manager', activo: true,
       createdAt: serverTimestamp()
     });
-    // Limpiar campos
     document.getElementById('manager-nombre').value = '';
     document.getElementById('manager-apellido').value = '';
     document.getElementById('manager-password').value = '';
@@ -138,36 +140,33 @@ window.addManager = async () => {
   }
 };
 
-// Activar / Desactivar usuario
 window.toggleUser = async (idUsuario, nuevoEstado) => {
   try {
     await updateDoc(doc(db, 'users', idUsuario), { activo: nuevoEstado });
     loadDrivers();
     showAlert('✅ Estado actualizado', 'success');
   } catch (err) {
-    showAlert(` No se pudo cambiar estado: ${err.message}`, 'danger');
+    showAlert(`❌ No se pudo cambiar estado: ${err.message}`, 'danger');
   }
 };
 
-// Eliminar usuario
 window.deleteUser = async (idUsuario) => {
   if (!confirm('¿Seguro que deseas eliminar este usuario?')) return;
   try {
     await deleteDoc(doc(db, 'users', idUsuario));
     loadDrivers();
-    showAlert('🗑 Usuario eliminado', 'success');
+    showAlert(' Usuario eliminado', 'success');
   } catch (err) {
     showAlert(`❌ No se pudo eliminar: ${err.message}`, 'danger');
   }
 };
 
-// ========== CONFIGURACIÓN DE PRECIOS ==========
+// ========== PRECIOS ==========
 async function loadPrices() {
   const precioRef = doc(db, 'config', 'prices');
   const precioDoc = await getDoc(precioRef);
   if (precioDoc.exists()) {
     const p = precioDoc.data();
-    // Asignar valores con protección
     const elPersona = document.getElementById('price-persona');
     const elZona = document.getElementById('price-zona');
     const elKm = document.getElementById('price-km');
@@ -188,88 +187,147 @@ async function savePrices() {
       porHora: parseFloat(document.getElementById('price-hora').value) || 0,
       updatedAt: serverTimestamp()
     });
-    showAlert('💰 Precios guardados correctamente', 'success');
+    showAlert(' Precios guardados correctamente', 'success');
   } catch (err) {
     showAlert(`❌ Error al guardar precios: ${err.message}`, 'danger');
   }
 }
 
-// ========== MAPA UBICACIONES EN TIEMPO REAL ==========
+// ========== NUEVO: CREAR VIAJE DESDE ADMIN ==========
+window.calculateManagerTrip = async () => {
+  const origen = document.getElementById('manager-trip-origen')?.value.trim();
+  const destino = document.getElementById('manager-trip-destino')?.value.trim();
+  const personas = parseInt(document.getElementById('manager-trip-personas')?.value) || 1;
+
+  if (!origen || !destino) {
+    return showAlert("⚠️ Escribí origen y destino", "warning");
+  }
+
+  try {
+    const priceSnap = await getDoc(doc(db, 'config', 'prices'));
+    const precios = priceSnap.exists() ? priceSnap.data() : { porPersona:0, porZona:0, porKm:0, porHora:0 };
+    const resultado = await calculateRouteCost(origen, destino, precios, personas);
+
+    const resultDiv = document.getElementById('manager-trip-result');
+    if(resultDiv) {
+      resultDiv.style.display = 'block';
+      document.getElementById('manager-trip-cost-display').textContent = resultado.costo;
+      document.getElementById('manager-trip-distance-display').textContent = `📏 Distancia: ${resultado.distance}`;
+      document.getElementById('manager-trip-duration-display').textContent = `⏱ Tiempo aprox: ${resultado.duration}`;
+    }
+
+    window._managerTripData = { ...resultado, origen, destino, personas };
+    showAlert("✅ Cálculo realizado", "success");
+  } catch (err) {
+    showAlert(`❌ Error al calcular: ${err.message}`, "danger");
+  }
+};
+
+window.createManagerTrip = async () => {
+  if (!window._managerTripData) {
+    return showAlert("ℹ️ Primero calculá el costo", "warning");
+  }
+
+  const choferSelect = document.getElementById('trip-chofer');
+  const choferId = choferSelect?.value;
+  const choferNombre = choferSelect?.selectedOptions[0]?.dataset.nombre || 'Asignado por admin';
+
+  if (!choferId) {
+    return showAlert("⚠️ Seleccioná un chofer para asignar el viaje", "warning");
+  }
+
+  const datos = window._managerTripData;
+  try {
+    await addDoc(collection(db, 'trips'), {
+      userId: choferId,
+      nombreConductor: choferNombre,
+      origen: datos.origen,
+      destino: datos.destino,
+      pasajeros: datos.personas,
+      costoTotal: datos.costo,
+      distanciaKm: datos.distanceKm,
+      horasEstimadas: datos.durationHours,
+      estado: "asignado",
+      creadoPor: "manager",
+      fechaInicio: serverTimestamp()
+    });
+
+    document.getElementById('manager-trip-origen').value = '';
+    document.getElementById('manager-trip-destino').value = '';
+    document.getElementById('manager-trip-personas').value = '1';
+    document.getElementById('manager-trip-result').style.display = 'none';
+    window._managerTripData = null;
+    choferSelect.value = '';
+
+    showAlert("✅ Viaje creado y asignado correctamente", "success");
+    loadHistory();
+  } catch(err) {
+    showAlert(`❌ No se pudo crear: ${err.message}`, "danger");
+  }
+};
+
+// ========== MAPA ==========
 function initLiveMap() {
   const contenedorMapa = document.getElementById('live-map');
   if(!contenedorMapa) return;
 
-  // Iniciar mapa
   map = L.map('live-map').setView([-34.6037, -58.3816], 12);
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '© OpenStreetMap contributors'
   }).addTo(map);
 
-  escucharUbicacionesChoferes();
+  escucharUbicacionesTodos();
 }
 
-function escucharUbicacionesChoferes() {
-  // ✅ Muestra choferes Y managers activos en el mapa
-  const consultaUbic = query(
-    collection(db, 'users'),
-    where('activo', '==', true)
-  );
+function escucharUbicacionesTodos() {
+  onSnapshot(collection(db, 'users'), (cambios) => {
+    Object.values(markers).forEach(m => map.removeLayer(m));
+    markers = {};
 
-  onSnapshot(consultaUbic, (cambios) => {
-    cambios.docChanges().forEach(cambio => {
-      const idChofer = cambio.doc.id;
-      const datos = cambio.doc.data();
-
-      // Actualizar o agregar marcador si tiene coordenadas
-      if (datos.lat && datos.lng) {
-        if (markers[idChofer]) {
-          markers[idChofer].setLatLng([datos.lat, datos.lng]);
-        } else {
-          const icono = datos.role === 'manager' ? '👔' : '🚐';
-          markers[idChofer] = L.marker([datos.lat, datos.lng])
-            .addTo(map)
-            .bindPopup(`<b>${icono} ${datos.nombre} ${datos.apellido}</b><br>🟢 ${datos.role === 'manager' ? 'Administrador' : 'Chofer'} en servicio`)
-            .openPopup();
-        }
-      }
-      // Quitar marcador si ya no cumple condición
-      if (cambio.type === 'removed' && markers[idChofer]) {
-        map.removeLayer(markers[idChofer]);
-        delete markers[idChofer];
+    cambios.forEach(docSnap => {
+      const datos = docSnap.data();
+      if (datos.activo && datos.lat && datos.lng) {
+        const icono = datos.role === 'manager' ? '👔' : '🚐';
+        const rolTexto = datos.role === 'manager' ? 'Administrador' : 'Chofer';
+        markers[docSnap.id] = L.marker([datos.lat, datos.lng])
+          .addTo(map)
+          .bindPopup(`<b>${icono} ${datos.nombre} ${datos.apellido}</b><br>🟢 ${rolTexto}`);
       }
     });
   });
 }
 
-// ========== LISTA DE ALERTAS ==========
+// ========== ALERTAS ==========
 async function loadAlerts() {
   const contenedorAlertas = document.getElementById('alerts-list');
   if(!contenedorAlertas) return;
   contenedorAlertas.innerHTML = '';
 
   try {
-    const snap = await getDocs(query(
-      collection(db, 'alerts'),
-      orderBy('createdAt', 'desc'),
-      limit(50)
-    ));
+    const snap = await getDocs(collection(db, 'alerts'));
+    const alertas = [];
+    snap.forEach(d => alertas.push({ id: d.id, ...d.data() }));
+    alertas.sort((a, b) => {
+      const dateA = a.fechaHora?.toDate?.() || a.createdAt?.toDate?.() || new Date(0);
+      const dateB = b.fechaHora?.toDate?.() || b.createdAt?.toDate?.() || new Date(0);
+      return dateB - dateA;
+    });
 
-    snap.forEach(d => {
-      const datosAlerta = d.data();
+    alertas.forEach(datosAlerta => {
       const tarjeta = document.createElement('div');
       tarjeta.className = 'card alert-card';
       tarjeta.innerHTML = `
         <strong style="color:var(--alert-red)">⚠️ ${datosAlerta.tipo || 'Alerta'}</strong> - ${datosAlerta.descripcion}
-        <br><small>  ${datosAlerta.nombreConductor || datosAlerta.userName || 'Sin nombre'} | 🕒 ${formatDate(datosAlerta.fechaHora || datosAlerta.createdAt)}</small>
+        <br><small> ${datosAlerta.nombreConductor || datosAlerta.userName || 'Sin nombre'} |  ${formatDate(datosAlerta.fechaHora || datosAlerta.createdAt)}</small>
         <div class="btn-group" style="margin-top:10px">
-          <button class="btn btn-sm btn-danger" onclick="deleteAlert('${d.id}')">🗑 Borrar</button>
-          <button class="btn btn-sm btn-info" onclick="saveAlert('${d.id}')">💾 Guardar</button>
+          <button class="btn btn-sm btn-danger" onclick="deleteAlert('${datosAlerta.id}')">🗑 Borrar</button>
+          <button class="btn btn-sm btn-info" onclick="saveAlert('${datosAlerta.id}')">💾 Guardar</button>
         </div>
       `;
       contenedorAlertas.appendChild(tarjeta);
     });
   } catch (err) {
-    showAlert(` No se pudieron cargar alertas: ${err.message}`, 'danger');
+    showAlert(`❌ No se pudieron cargar alertas: ${err.message}`, 'danger');
   }
 }
 
@@ -279,7 +337,7 @@ window.deleteAlert = async (idAlerta) => {
     loadAlerts();
     showAlert('✅ Alerta eliminada', 'success');
   } catch (err) {
-    showAlert(` Error al borrar: ${err.message}`, 'danger');
+    showAlert(`❌ Error al borrar: ${err.message}`, 'danger');
   }
 };
 
@@ -298,23 +356,30 @@ window.saveAlert = async (idAlerta) => {
   }
 };
 
-// ========== HISTORIAL DE VIAJES ==========
+// ========== HISTORIAL ==========
 async function loadHistory() {
   const tablaHistorial = document.getElementById('history-list');
   if(!tablaHistorial) return;
   tablaHistorial.innerHTML = '';
 
   try {
-    const snap = await getDocs(query(collection(db, 'trips'), orderBy('createdAt', 'desc')));
-    snap.forEach(d => {
-      const datosViaje = d.data();
+    const snap = await getDocs(collection(db, 'trips'));
+    const viajes = [];
+    snap.forEach(d => viajes.push({ id: d.id, ...d.data() }));
+    viajes.sort((a, b) => {
+      const dateA = a.fechaInicio?.toDate?.() || a.createdAt?.toDate?.() || new Date(0);
+      const dateB = b.fechaInicio?.toDate?.() || b.createdAt?.toDate?.() || new Date(0);
+      return dateB - dateA;
+    });
+
+    viajes.forEach(datosViaje => {
       const fila = document.createElement('tr');
       fila.innerHTML = `
-        <td>${datosViaje.nombreConductor || datosViaje.userName || 'Sin asignar'}</td>
-        <td>${datosViaje.origen} ➡ ${datosViaje.destino}</td>
+        <td>${datosViaje.nombreConductor || 'Sin asignar'}</td>
+        <td>${datosViaje.origen || ''} ➡ ${datosViaje.destino || ''}</td>
         <td>$ ${datosViaje.costoTotal || datosViaje.costo || 0}</td>
         <td>${formatDate(datosViaje.fechaInicio || datosViaje.createdAt)}</td>
-        <td><button class="btn btn-sm btn-danger" onclick="deleteTrip('${d.id}')">🗑 Eliminar</button></td>
+        <td><button class="btn btn-sm btn-danger" onclick="deleteTrip('${datosViaje.id}')">🗑 Eliminar</button></td>
       `;
       tablaHistorial.appendChild(fila);
     });
@@ -324,17 +389,16 @@ async function loadHistory() {
 }
 
 window.deleteTrip = async (idViaje) => {
-  if (!confirm('¿Eliminar este viaje del historial?')) return;
+  if (!confirm('¿Eliminar este viaje?')) return;
   try {
     await deleteDoc(doc(db, 'trips', idViaje));
     loadHistory();
     showAlert('✅ Viaje eliminado', 'success');
   } catch (err) {
-    showAlert(`❌ Error al borrar viaje: ${err.message}`, 'danger');
+    showAlert(` Error al borrar viaje: ${err.message}`, 'danger');
   }
 };
 
-// Exportar historial a Excel
 function exportHistory() {
   const filas = [];
   document.querySelectorAll('#history-list tr').forEach(fila => {
@@ -350,10 +414,9 @@ function exportHistory() {
   });
   if (filas.length === 0) return showAlert('ℹ️ No hay registros para exportar', 'warning');
   exportToExcel(filas, 'historial_traslados.xlsx');
-  showAlert(' Exportado correctamente a Excel', 'success');
+  showAlert('📊 Exportado correctamente a Excel', 'success');
 }
 
-// ========== DATOS / ESTADÍSTICAS ==========
 async function loadStats() {
   try {
     const [usuarios, viajes, alertas] = await Promise.all([
@@ -370,9 +433,7 @@ async function loadStats() {
   }
 }
 
-// ========== RESTRICCIÓN FUNCIONES EXCLUSIVAS DUEÑO ==========
-window.blockApp = () => showAlert('⛔ Solo el propietario puede bloquear la aplicación', 'warning');
+window.blockApp = () => showAlert(' Solo el propietario puede bloquear la aplicación', 'warning');
 window.unblockApp = () => showAlert('⛔ Solo el propietario puede desbloquear la aplicación', 'warning');
 
-// INICIAR TODO AL CARGAR
 init();

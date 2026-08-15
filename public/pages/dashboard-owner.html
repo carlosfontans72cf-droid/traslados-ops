@@ -8,19 +8,14 @@
   <link rel="stylesheet" href="/css/styles.css">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <meta name="theme-color" content="#1a3a6b">
+  <link rel="apple-touch-icon" href="/icons/icon-192.png">
   <style>
     #live-map { height: 380px; width: 100%; border-radius: 8px; }
     .form-group { position: relative; }
     .ver-contrasena {
-      position: absolute;
-      right: 12px;
-      bottom: 10px;
-      background: transparent;
-      border: none;
-      font-size: 18px;
-      color: #64748b;
-      cursor: pointer;
-      transition: color 0.2s;
+      position: absolute; right: 12px; bottom: 10px;
+      background: transparent; border: none; font-size: 18px;
+      color: #64748b; cursor: pointer; transition: color 0.2s;
     }
     .ver-contrasena:hover { color: #2563eb; }
     .form-control { padding-right: 42px; }
@@ -29,7 +24,7 @@
 <body>
 
   <nav class="navbar">
-    <h1>Panel Dueño</h1>
+    <h1>👑 Panel Dueño</h1>
     <span class="user-info" id="user-info"></span>
   </nav>
 
@@ -41,9 +36,9 @@
       <div class="stat-card"><div class="number" id="stat-alerts">0</div><div class="label">Alertas</div></div>
     </div>
 
-    <h3 class="section-title">🚐 Gestión de Choferes</h3>
+    <h3 class="section-title"> Gestión de Choferes</h3>
     <div class="card">
-      <div class="card-header"> Agregar Chofer</div>
+      <div class="card-header">➕ Agregar Chofer</div>
       <div class="grid grid-2">
         <input type="text" id="driver-nombre" class="form-control" placeholder="Nombre">
         <input type="text" id="driver-apellido" class="form-control" placeholder="Apellido">
@@ -55,9 +50,9 @@
       <button id="btn-add-driver" class="btn btn-primary">🚐 Agregar Chofer</button>
     </div>
 
-    <h3 class="section-title">👔 Agregar Administrador</h3>
+    <h3 class="section-title"> Agregar Administrador</h3>
     <div class="card">
-      <div class="card-header"> Agregar Administrador</div>
+      <div class="card-header">👔 Agregar Administrador</div>
       <div class="grid grid-2">
         <input type="text" id="manager-nombre" class="form-control" placeholder="Nombre">
         <input type="text" id="manager-apellido" class="form-control" placeholder="Apellido">
@@ -67,6 +62,35 @@
         <button type="button" class="ver-contrasena" data-target="manager-password">👁</button>
       </div>
       <button id="btn-add-manager" class="btn btn-purple">👔 Agregar Admin</button>
+    </div>
+
+    <!-- ✅ NUEVO: Crear Viaje desde el dueño -->
+    <h3 class="section-title">🚗 Crear Viaje (Asignar a Chofer)</h3>
+    <div class="card">
+      <div class="card-header">🚗 Asignar nuevo viaje a un chofer</div>
+      <div class="form-group" style="margin-bottom:10px">
+        <label>Chofer asignado</label>
+        <select id="trip-chofer" class="form-control">
+          <option value="">-- Seleccionar chofer --</option>
+        </select>
+      </div>
+      <div class="grid grid-2">
+        <div><label>Origen</label><input type="text" id="owner-trip-origen" class="form-control" placeholder="Dirección de origen"></div>
+        <div><label>Destino</label><input type="text" id="owner-trip-destino" class="form-control" placeholder="Dirección de destino"></div>
+      </div>
+      <div style="margin-top:10px">
+        <label>N° Personas</label>
+        <input type="number" id="owner-trip-personas" class="form-control" value="1" min="1">
+      </div>
+      <div style="margin-top:10px" class="btn-group">
+        <button id="btn-calc-trip" class="btn btn-info">🧮 Calcular Costo</button>
+        <button id="btn-create-trip" class="btn btn-success">✅ Crear Viaje</button>
+      </div>
+      <div id="owner-trip-result" style="display:none; margin-top:15px; padding:12px; background:#e8f0fe; border-radius:8px;">
+        <div id="owner-trip-cost-display" style="font-size:20px; font-weight:bold; color:#1e40af;">$0</div>
+        <div id="owner-trip-distance-display"></div>
+        <div id="owner-trip-duration-display"></div>
+      </div>
     </div>
 
     <div class="card">
@@ -87,10 +111,10 @@
         <div><label>Por Kilómetro ($)</label><input type="number" id="price-km" class="price-input" step="0.01" min="0"></div>
         <div><label>Por Hora ($)</label><input type="number" id="price-hora" class="price-input" step="0.01" min="0"></div>
       </div>
-      <button id="btn-save-prices" class="btn btn-success" style="margin-top:10px">💾 Guardar Precios</button>
+      <button id="btn-save-prices" class="btn btn-success" style="margin-top:10px"> Guardar Precios</button>
     </div>
 
-    <h3 class="section-title">🗺️ Mapa en Vivo</h3>
+    <h3 class="section-title">️ Mapa en Vivo</h3>
     <div class="card"><div id="live-map"></div></div>
 
     <h3 class="section-title">⚠️ Alertas</h3>
@@ -103,7 +127,7 @@
     <div class="card">
       <div class="btn-group">
         <button id="btn-load-history" class="btn btn-info">📋 Ver Historial</button>
-        <button id="btn-export-excel" class="btn btn-success"> Exportar Excel</button>
+        <button id="btn-export-excel" class="btn btn-success">📊 Exportar Excel</button>
       </div>
       <div style="overflow-x:auto;margin-top:10px">
         <table>
@@ -113,7 +137,7 @@
       </div>
     </div>
 
-    <h3 class="section-title" style="color:var(--alert-red)">🔒 Bloqueo de App</h3>
+    <h3 class="section-title" style="color:var(--alert-red)"> Bloqueo de App</h3>
     <div class="card" style="border-left:4px solid var(--alert-red)">
       <p>Solo el dueño puede bloquear/desbloquear la app completamente.</p>
       <div class="btn-group">
@@ -137,6 +161,5 @@
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
   <script type="module" src="/js/owner.js"></script>
-<script type="module" src="https://static.cloudflareinsights.com/beacon.min.js/v4513226cdae34746b4dedf0b4dfa099e1781791509496" integrity="sha512-ZE9pZaUXND66v380QUtch/5sE9tPFh2zg45pR2PB0CVkCtOREv2AJKkSidISWkysEuQ0EH8faUU5du78bx87UQ==" data-cf-beacon='{"version":"2024.11.0","token":"1954b47c125f43f8b4338b3c4f804e4f"}' crossorigin="anonymous"></script>
-<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a2b052483ab0d786',t:'MTc4NjcxNDMwMg=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a2b721701b80a79f',t:'MTc4Njc4NTcwMg=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
