@@ -1,8 +1,5 @@
 // /js/utils.js
 
-// 🔑 API Key de Google Maps (restringida a tu dominio)
-const GOOGLE_MAPS_API_KEY = 'AIzaSyAF2Yqau-KETXUes3P-ST5CkIeWLvSGhBc';
-
 // 📢 Mostrar aviso temporal en esquina superior derecha
 export function showAlert(message, type = 'info') {
   const colors = {
@@ -65,52 +62,40 @@ export function getCurrentLocation() {
   });
 }
 
-// 🗺️ Geocodificación con Google Maps (mucho mejor que Nominatim)
+// 🗺️ Geocodificación usando nuestro servidor (sin CORS)
 async function googleGeocode(address) {
   if (!address?.trim()) {
     throw new Error(' La dirección está vacía');
   }
 
-  // Agregar contexto de Uruguay/Maldonado para mejorar búsquedas
-  let query = address.trim();
-  // Si no parece tener país, agregar Uruguay
-  if (!/uruguay|argentina|brasil|brazil/i.test(query)) {
-    query = query + ', Uruguay';
-  }
-
-  const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(query)}&key=${GOOGLE_MAPS_API_KEY}&language=es`;
+  const url = `/api/route?type=geocode&address=${encodeURIComponent(address)}`;
 
   let response;
   try {
     response = await fetch(url).then(r => r.json());
   } catch {
-    throw new Error('🌐 Error de conexión con Google Maps');
+    throw new Error(' Error de conexión al buscar dirección');
   }
 
-  if (response.status !== 'OK') {
-    const errorMessages = {
-      'ZERO_RESULTS': `📍 No encontré: "${address}". Intentá ser más específico (calle, número, ciudad)`,
-      'OVER_QUERY_LIMIT': '⚠️ Límite de consultas alcanzado. Intentá en unos minutos',
-      'REQUEST_DENIED': '❌ Google Maps rechazó la consulta. Verificá la API Key',
-      'INVALID_REQUEST': ' Petición inválida. Verificá la dirección'
-    };
-    throw new Error(errorMessages[response.status] || `Error de Google Maps: ${response.status}`);
+  if (response.error) {
+    throw new Error(response.error);
   }
 
-  if (!response.results || response.results.length === 0) {
-    throw new Error(` No encontré: "${address}". Intentá ser más específico`);
+  if (response.status !== 'OK' || !response.results || !response.results.length) {
+    throw new Error(`📍 No encontré: "${address}". Intentá ser más específico (calle, número, ciudad)`);
   }
 
   return response.results[0];
 }
 
-// 🚘 Calcular distancia, duración y costo del viaje (usando Google Maps)
+// 🚘 Calcular distancia, duración y costo del viaje
+// ✅ USA NUESTRO SERVIDOR - SIN CORS - SIN SERVICE WORKER INTERFIRIENDO
 export async function calculateRouteCost(origen, destino, precios, personas = 1) {
   if (!origen?.trim() || !destino?.trim()) {
-    throw new Error('⚠️ Escribí correctamente Origen y Destino');
+    throw new Error('️ Escribí correctamente Origen y Destino');
   }
 
-  // Geocodificar con Google Maps
+  // Geocodificar usando nuestro servidor
   const origResult = await googleGeocode(origen);
   const destResult = await googleGeocode(destino);
 
@@ -119,8 +104,8 @@ export async function calculateRouteCost(origen, destino, precios, personas = 1)
   const dLat = destResult.geometry.location.lat;
   const dLng = destResult.geometry.location.lng;
 
-  // Consultar ruta con Google Directions API
-  const directionsUrl = `https://maps.googleapis.com/maps/api/directions/json?origin=${oLat},${oLng}&destination=${dLat},${dLng}&mode=driving&key=${GOOGLE_MAPS_API_KEY}&language=es`;
+  // Consultar ruta usando nuestro servidor
+  const directionsUrl = `/api/route?type=directions&origin=${oLat},${oLng}&destination=${dLat},${dLng}&mode=driving`;
 
   let dirResponse;
   try {
@@ -129,15 +114,12 @@ export async function calculateRouteCost(origen, destino, precios, personas = 1)
     throw new Error('🛣️ Error de conexión al calcular la ruta');
   }
 
+  if (dirResponse.error) {
+    throw new Error(dirResponse.error);
+  }
+
   if (dirResponse.status !== 'OK' || !dirResponse.routes || !dirResponse.routes.length) {
-    const errorMessages = {
-      'ZERO_RESULTS': '❌ No hay ruta entre los dos puntos',
-      'MAX_WAYPOINTS_EXCEEDED': '❌ Demasiados puntos intermedios',
-      'OVER_QUERY_LIMIT': '️ Límite de consultas alcanzado',
-      'REQUEST_DENIED': '❌ Google Maps rechazó la consulta',
-      'INVALID_REQUEST': ' Petición inválida'
-    };
-    throw new Error(errorMessages[dirResponse.status] || '❌ No se pudo calcular la ruta');
+    throw new Error('❌ No se pudo calcular la ruta entre los puntos');
   }
 
   const route = dirResponse.routes[0];
@@ -184,7 +166,7 @@ export function exportToExcel(data, filename = 'historial_traslados.xlsx') {
     const libro = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(libro, hoja, 'Datos');
     XLSX.writeFile(libro, filename);
-    showAlert('📊 Archivo Excel generado correctamente', 'success');
+    showAlert(' Archivo Excel generado correctamente', 'success');
   } catch (err) {
     showAlert(`❌ No se pudo exportar: ${err.message}`, 'danger');
   }
