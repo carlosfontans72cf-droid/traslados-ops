@@ -1,4 +1,5 @@
-const CACHE_NAME = 'traslados-v3';
+// Service Worker para Traslados Vans
+const CACHE_NAME = 'traslados-v4';
 
 const urlsToCache = [
   '/',
@@ -18,7 +19,7 @@ self.addEventListener('install', (event) => {
               return cache.put(url, response);
             }
           }).catch(err => {
-            console.log(`No se pudo cachear ${url}:`, err);
+            console.log('No se pudo cachear:', url, err);
           });
         })
       );
@@ -29,40 +30,42 @@ self.addEventListener('install', (event) => {
 
 self.addEventListener('activate', (event) => {
   event.waitUntil(
-    caches.keys().then(keys =>
-      Promise.all(
+    caches.keys().then(keys => {
+      return Promise.all(
         keys.map(key => {
           if (key !== CACHE_NAME) {
             return caches.delete(key);
           }
         })
-      )
-    )
+      );
+    }).then(() => {
+      return self.clients.claim();
+    })
   );
-  self.clientsClaim();
 });
 
-// ✅ NO interceptar peticiones a Google Maps ni servicios externos
+// NO interceptar peticiones a servicios externos
 self.addEventListener('fetch', (event) => {
   const url = event.request.url;
   
-  // Si es petición a Google Maps, APIs externas, o recursos de terceros → ir directo a la red
+  // Dejar pasar directo a internet: Google Maps, APIs, CDNs externos
   if (
     url.includes('maps.googleapis.com') ||
     url.includes('googleapis.com') ||
-    url.includes('google.com/maps') ||
     url.includes('openstreetmap.org') ||
     url.includes('unpkg.com') ||
     url.includes('cdn.sheetjs.com') ||
-    url.includes('tile.openstreetmap')
+    url.includes('gstatic.com')
   ) {
-    return; // No interceptar, dejar que vaya directo a internet
+    return;
   }
 
-  // Para el resto: intentar caché primero, luego red
+  // Para el resto: caché primero, luego red
   event.respondWith(
     caches.match(event.request).then(response => {
-      return response || fetch(event.request);
+      return response || fetch(event.request).catch(() => {
+        return caches.match('/index.html');
+      });
     })
   );
 });
