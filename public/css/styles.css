@@ -5,7 +5,6 @@
   box-sizing: border-box;
   font-family: 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', sans-serif;
 }
-
 body {
   min-height: 100vh;
   display: flex;
@@ -15,14 +14,12 @@ body {
   padding: 20px;
   -webkit-font-smoothing: antialiased;
 }
-
 /* ===== CONTENEDOR CENTRAL ===== */
 .login-container {
   width: 100%;
   max-width: 420px;
   margin: auto;
 }
-
 .login-box {
   background: #ffffff;
   padding: 40px 30px;
@@ -31,7 +28,6 @@ body {
   text-align: center;
   animation: aparecer 0.4s ease-out;
 }
-
 /* ===== ANIMACIÓN ===== */
 @keyframes aparecer {
   from {
@@ -43,34 +39,29 @@ body {
     transform: translateY(0);
   }
 }
-
 /* ===== TEXTOS Y LOGO ===== */
 .logo {
   font-size: 48px;
   margin-bottom: 10px;
 }
-
 h1 {
   color: #1e40af;
   font-size: 28px;
   margin-bottom: 8px;
   font-weight: 700;
 }
-
 .subtitulo {
   color: #64748b;
   margin-bottom: 30px;
   font-size: 15px;
   line-height: 1.5;
 }
-
 /* ===== CAMPOS DE ENTRADA ===== */
 .campo {
   text-align: left;
   margin-bottom: 20px;
   position: relative; /* ✅ CLAVE para poner el ojo adentro a la derecha */
 }
-
 .campo label {
   display: block;
   color: #334155;
@@ -78,7 +69,6 @@ h1 {
   font-weight: 500;
   font-size: 15px;
 }
-
 .campo input {
   width: 100%;
   padding: 12px 42px 12px 14px; /* ✅ más espacio derecha para el ícono */
@@ -88,14 +78,12 @@ h1 {
   transition: border-color 0.25s ease, box-shadow 0.25s ease;
   background-color: #fcfcfd;
 }
-
 .campo input:focus {
   outline: none;
   border-color: #2563eb;
   box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
   background-color: #ffffff;
 }
-
 /* ✅ ===== ESTILO NUEVO: BOTÓN OJO VER CONTRASEÑA ===== */
 .ver-contrasena {
   position: absolute;
@@ -111,7 +99,6 @@ h1 {
 .ver-contrasena:hover {
   color: #2563eb;
 }
-
 /* ===== BOTÓN PRINCIPAL ===== */
 .btn-principal {
   width: 100%;
@@ -125,15 +112,12 @@ h1 {
   cursor: pointer;
   transition: background-color 0.25s ease, transform 0.2s ease;
 }
-
 .btn-principal:hover {
   background: #1d4ed8;
 }
-
 .btn-principal:active {
   transform: scale(0.98);
 }
-
 /* ===== MENSAJE DE ERROR ===== */
 .error {
   margin-top: 15px;
@@ -143,15 +127,83 @@ h1 {
   min-height: 20px;
 }
 
-/* ===== AJUSTES PARA CELULARES ===== */
+/* ===== 📱 CELULAR (pantallas chicas) ===== */
 @media (max-width: 480px) {
+  body {
+    padding: 12px;
+  }
   .login-box {
-    padding: 30px 20px;
+    padding: 25px 18px;
+    border-radius: 14px;
   }
   h1 {
-    font-size: 24px;
+    font-size: 22px;
   }
   .logo {
-    font-size: 40px;
+    font-size: 38px;
+  }
+  .subtitulo {
+    font-size: 14px;
+    margin-bottom: 22px;
+  }
+  .campo {
+    margin-bottom: 16px;
+  }
+  .campo label {
+    font-size: 14px;
+  }
+  .campo input {
+    padding: 11px 42px 11px 12px;
+    font-size: 16px; /* ✅ Mejora experiencia en móvil */
+  }
+  .btn-principal {
+    padding: 12px;
+    font-size: 15px;
+  }
+}
+
+/* ===== 💻 PC Y TABLET (pantallas anchas) ===== */
+@media (min-width: 768px) {
+  body {
+    padding: 40px;
+  }
+  .login-container {
+    max-width: 480px; /* ✅ Más ancho en PC */
+  }
+  .login-box {
+    padding: 45px 40px; /* ✅ Más espacio interno */
+    border-radius: 20px; /* ✅ Bordes más redondos */
+    box-shadow: 0 15px 50px rgba(0, 0, 0, 0.25); /* ✅ Sombra más suave y profunda */
+  }
+  .logo {
+    font-size: 56px; /* ✅ Logo más grande */
+  }
+  h1 {
+    font-size: 32px; /* ✅ Título más grande */
+    margin-bottom: 10px;
+  }
+  .subtitulo {
+    font-size: 16px;
+    margin-bottom: 35px;
+  }
+  .campo {
+    margin-bottom: 24px; /* ✅ Más espacio entre campos */
+  }
+  .campo label {
+    font-size: 16px;
+    margin-bottom: 8px;
+  }
+  .campo input {
+    padding: 14px 44px 14px 16px; /* ✅ Campos más altos */
+    font-size: 16px;
+  }
+  .ver-contrasena {
+    font-size: 20px;
+    right: 14px;
+    bottom: 13px;
+  }
+  .btn-principal {
+    padding: 15px; /* ✅ Botón más grande */
+    font-size: 17px;
   }
 }
