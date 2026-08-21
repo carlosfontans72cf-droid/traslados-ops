@@ -15,23 +15,22 @@
       margin: 0;
       padding: 0;
     }
-
     body {
       min-height: 100vh;
       display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
       padding: 15px;
       background: linear-gradient(135deg, #1a3a6b 0%, #2c5299 100%);
     }
-
     .login-container {
       width: 100%;
       display: flex;
       align-items: center;
       justify-content: center;
+      flex: 1;
     }
-
     .login-card {
       background: #ffffff;
       width: 100%;
@@ -41,7 +40,6 @@
       box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
       animation: aparecer 0.4s ease-out;
     }
-
     @keyframes aparecer {
       from {
         opacity: 0;
@@ -52,13 +50,11 @@
         transform: translateY(0);
       }
     }
-
     .logo {
       text-align: center;
       font-size: 3rem;
       margin-bottom: 8px;
     }
-
     h2 {
       text-align: center;
       color: #1a3a6b;
@@ -66,7 +62,6 @@
       font-size: 1.45rem;
       font-weight: 700;
     }
-
     .subtitulo {
       text-align: center;
       color: #64748b;
@@ -74,11 +69,9 @@
       font-size: 0.9rem;
       line-height: 1.4;
     }
-
     .form-group {
       margin-bottom: 18px;
     }
-
     .form-group label {
       display: block;
       margin-bottom: 6px;
@@ -86,11 +79,9 @@
       font-weight: 500;
       font-size: 0.95rem;
     }
-
     .form-group {
       position: relative;
     }
-
     .form-control {
       width: 100%;
       padding: 12px 14px;
@@ -100,14 +91,12 @@
       transition: border-color 0.2s, box-shadow 0.2s;
       background-color: #fcfcfd;
     }
-
     .form-control:focus {
       outline: none;
       border-color: #1a3a6b;
       background-color: #ffffff;
       box-shadow: 0 0 0 3px rgba(26, 58, 107, 0.15);
     }
-
     .ver-contrasena {
       position: absolute;
       right: 12px;
@@ -119,11 +108,9 @@
       cursor: pointer;
       transition: color 0.2s;
     }
-
     .ver-contrasena:hover {
       color: #2563eb;
     }
-
     .btn {
       border: none;
       border-radius: 8px;
@@ -132,7 +119,6 @@
       font-weight: 500;
       transition: background-color 0.2s, transform 0.1s;
     }
-
     .btn-primary {
       background-color: #1a3a6b;
       color: #ffffff;
@@ -141,15 +127,12 @@
       margin-top: 8px;
       font-weight: 600;
     }
-
     .btn-primary:hover {
       background-color: #142d54;
     }
-
     .btn-primary:active {
       transform: scale(0.98);
     }
-
     .mensaje-ayuda {
       text-align: center;
       margin-top: 18px;
@@ -157,61 +140,82 @@
       font-size: 0.85rem;
       line-height: 1.4;
     }
-
+    /* ===== PIE DE PÁGINA CON ENLACES LEGALES ===== */
+    .pie-pagina {
+      text-align: center;
+      margin-top: 20px;
+      padding: 12px 10px;
+      font-size: 0.82rem;
+      color: #e2e8f0;
+    }
+    .pie-pagina .enlaces {
+      margin-bottom: 6px;
+      line-height: 1.5;
+    }
+    .pie-pagina a {
+      color: #facc15;
+      text-decoration: none;
+      font-weight: 500;
+    }
+    .pie-pagina a:hover {
+      text-decoration: underline;
+    }
+    .pie-pagina .separador {
+      color: #94a3b8;
+      margin: 0 8px;
+    }
+    .pie-pagina .copyright {
+      font-size: 0.75rem;
+      color: #cbd5e1;
+    }
     /* ===== 💻 ESTILOS SOLO PARA PC (pantallas ≥ 768px) ===== */
     @media (min-width: 768px) {
       body {
         padding: 40px;
       }
-
       .login-card {
         max-width: 440px;
         padding: 42px 38px;
         border-radius: 20px;
         box-shadow: 0 12px 48px rgba(0, 0, 0, 0.22);
       }
-
       .logo {
         font-size: 4rem;
         margin-bottom: 12px;
       }
-
       h2 {
         font-size: 1.8rem;
         margin-bottom: 10px;
       }
-
       .subtitulo {
         font-size: 1rem;
         margin-bottom: 28px;
       }
-
       .form-group {
         margin-bottom: 22px;
       }
-
       .form-group label {
         font-size: 1rem;
       }
-
       .form-control {
         padding: 14px 16px;
         font-size: 1.02rem;
       }
-
       .ver-contrasena {
         font-size: 20px;
         right: 14px;
         bottom: 13px;
       }
-
       .btn-primary {
         padding: 15px;
         font-size: 1.05rem;
       }
-
       .mensaje-ayuda {
         margin-top: 22px;
+        font-size: 0.9rem;
+      }
+      .pie-pagina {
+        margin-top: 30px;
         font-size: 0.9rem;
       }
     }
@@ -225,34 +229,42 @@
       <p class="subtitulo">
         Sistema de gestión de traslados
       </p>
-
       <div class="form-group">
         <label for="nombre">Nombre</label>
         <input type="text" id="nombre" class="form-control" placeholder="Tu nombre" autocomplete="off">
       </div>
-
       <div class="form-group">
         <label for="apellido">Apellido</label>
         <input type="text" id="apellido" class="form-control" placeholder="Tu apellido" autocomplete="off">
       </div>
-
       <div class="form-group">
         <label for="password">Contraseña</label>
         <input type="password" id="password" class="form-control" placeholder="Contraseña" style="padding-right: 44px;">
         <button type="button" class="ver-contrasena" data-target="password">👁</button>
       </div>
-
       <div id="login-error" style="color: var(--alert-red); text-align: center; margin-bottom: 10px; min-height: 20px;"></div>
-
       <button id="btn-login" class="btn btn-primary btn-block btn-lg">
         🔑 Iniciar Sesión
       </button>
-
       <p class="mensaje-ayuda">
         Ingresa con tu usuario asignado por el dueño
       </p>
     </div>
   </div>
+
+  <!-- === PIE DE PÁGINA CON ENLACES LEGALES === -->
+  <footer class="pie-pagina">
+    <div class="enlaces">
+      <a href="/pages/politica-privacidad.html">Política de Privacidad</a>
+      <span class="separador">|</span>
+      <a href="/pages/terminos-uso.html">Términos de Uso</a>
+      <span class="separador">|</span>
+      <a href="/pages/aviso-legal.html">Aviso Legal</a>
+    </div>
+    <div class="copyright">
+      © 2026 Traslados Vans — Todos los derechos reservados
+    </div>
+  </footer>
 
   <script>
     document.addEventListener('click', e => {
@@ -269,7 +281,6 @@
       }
     });
   </script>
-
   <!-- ✅ Service Worker TEMPORALMENTE DESACTIVADO para que Google Maps funcione -->
   <!-- Se volverá a activar cuando se confirme que Google Maps funciona -->
   <script type="module" src="js/auth.js"></script>
