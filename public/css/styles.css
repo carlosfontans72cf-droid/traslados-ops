@@ -206,4 +206,173 @@ h1 {
     padding: 15px; /* ✅ Botón más grande */
     font-size: 17px;
   }
+}/* ===== ESTILOS BASE (celular primero) ===== */
+body {
+  padding: 15px;
+}
+
+/* Contenedor general */
+.dashboard-container {
+  width: 100%;
+  max-width: 100%;
+  margin: 0 auto;
+}
+
+/* Sección: Nuevo Viaje */
+.viaje-section {
+  margin-bottom: 25px;
+}
+
+.viaje-section h2 {
+  font-size: 1.35rem;
+  margin-bottom: 12px;
+  color: #000;
+}
+
+.viaje-section label {
+  display: inline-block;
+  width: 130px;
+  font-size: 0.95rem;
+  color: #222;
+  margin-bottom: 8px;
+}
+
+.viaje-section input {
+  padding: 8px 10px;
+  font-size: 0.95rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  width: calc(100% - 135px);
+  max-width: 280px;
+}
+
+/* Botones */
+.btn {
+  padding: 9px 14px;
+  font-size: 0.95rem;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  margin: 4px 6px 4px 0;
+}
+
+.btn-calc {
+  background: #f0c800;
+  color: #000;
+}
+
+.btn-iniciar {
+  background: #2563eb;
+  color: #fff;
+}
+
+.btn-finalizar {
+  background: #16a34a;
+  color: #fff;
+}
+
+/* Mapa */
+.mapa-container {
+  width: 100%;
+  height: 320px;
+  border-radius: 10px;
+  overflow: hidden;
+  margin: 15px 0 25px 0;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.mapa-container iframe,
+.mapa-container .leaflet-container {
+  width: 100%;
+  height: 100%;
+}
+
+/* Sección Alertas */
+.alertas-section h3 {
+  font-size: 1.2rem;
+  margin-bottom: 12px;
+}
+
+.alertas-section input {
+  width: 100%;
+  max-width: 320px;
+  padding: 10px;
+  font-size: 0.95rem;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  margin-bottom: 12px;
+}
+
+.botones-alertas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.btn-alerta {
+  padding: 8px 12px;
+  font-size: 0.9rem;
+  border-radius: 20px;
+  border: none;
+  cursor: pointer;
+  color: #fff;
+  font-weight: 500;
+}
+
+.btn-rojo { background: #dc2626; }
+.btn-amarillo { background: #eab308; color: #000; }
+
+/* ===== 💻 ESTILOS SOLO PARA PC (≥ 768px) ===== */
+@media (min-width: 768px) {
+  body {
+    padding: 30px 40px;
+  }
+
+  .dashboard-container {
+    max-width: 900px;
+  }
+
+  .viaje-section h2 {
+    font-size: 1.6rem;
+    margin-bottom: 18px;
+  }
+
+  .viaje-section label {
+    width: 150px;
+    font-size: 1.05rem;
+  }
+
+  .viaje-section input {
+    padding: 10px 14px;
+    font-size: 1.02rem;
+    max-width: 350px;
+  }
+
+  .btn {
+    padding: 11px 18px;
+    font-size: 1rem;
+    margin: 6px 10px 6px 0;
+  }
+
+  .mapa-container {
+    height: 420px;
+    border-radius: 14px;
+    margin: 20px 0 30px 0;
+  }
+
+  .alertas-section h3 {
+    font-size: 1.4rem;
+  }
+
+  .alertas-section input {
+    max-width: 400px;
+    padding: 12px;
+    font-size: 1rem;
+  }
+
+  .btn-alerta {
+    padding: 10px 16px;
+    font-size: 0.95rem;
+  }
 }
