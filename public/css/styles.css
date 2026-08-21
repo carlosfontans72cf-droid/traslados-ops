@@ -375,4 +375,952 @@ body {
     padding: 10px 16px;
     font-size: 0.95rem;
   }
+}/* ==================================================
+   📱 ESTILOS BASE — Diseño pensado primero para celular
+   ================================================== */
+
+/* Contenedor principal */
+.dashboard-container {
+  width: 100%;
+  max-width: 100%;
+  margin: 0 auto;
+  padding: 0;
+}
+
+/* ===== SECCIÓN: NUEVO VIAJE ===== */
+.viaje-section {
+  background: rgba(255, 255, 255, 0.95);
+  padding: 18px 15px;
+  border-radius: 12px;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.viaje-section h2 {
+  font-size: 1.35rem;
+  margin-bottom: 16px;
+  color: #1e3a8a;
+  font-weight: 600;
+}
+
+/* Etiquetas + campos */
+.campo-fila {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-bottom: 10px;
+  gap: 6px 0;
+}
+
+.viaje-section label {
+  min-width: 130px;
+  font-size: 0.95rem;
+  color: #334155;
+  font-weight: 500;
+}
+
+.viaje-section input {
+  flex: 1;
+  min-width: 180px;
+  padding: 10px 12px;
+  font-size: 0.95rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  background: #fcfcfd;
+  transition: border-color 0.2s;
+}
+
+.viaje-section input:focus {
+  outline: none;
+  border-color: #2563eb;
+  background: #fff;
+}
+
+/* Botones */
+.grupo-botones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.btn {
+  padding: 10px 16px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+}
+
+.btn-calc {
+  background: #facc15;
+  color: #1f2937;
+}
+.btn-calc:hover {
+  background: #eab308;
+}
+
+.btn-iniciar {
+  background: #2563eb;
+  color: #fff;
+}
+.btn-iniciar:hover {
+  background: #1d4ed8;
+}
+
+.btn-finalizar {
+  background: #16a34a;
+  color: #fff;
+}
+.btn-finalizar:hover {
+  background: #15803d;
+}
+
+/* ===== SECCIÓN: MAPA ===== */
+.mapa-titulo {
+  font-size: 1.25rem;
+  margin: 10px 0 12px 0;
+  color: #1e3a8a;
+  font-weight: 600;
+}
+
+.mapa-container {
+  width: 100%;
+  height: 300px;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+  margin-bottom: 25px;
+}
+
+.mapa-container .leaflet-container {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* ===== SECCIÓN: ALERTAS ===== */
+.alertas-section {
+  background: rgba(255, 255, 255, 0.95);
+  padding: 18px 15px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.alertas-section h3 {
+  font-size: 1.25rem;
+  margin-bottom: 14px;
+  color: #b91c1c;
+  font-weight: 600;
+}
+
+.alertas-section input {
+  width: 100%;
+  padding: 10px 12px;
+  font-size: 0.95rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  margin-bottom: 14px;
+}
+
+.botones-alertas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.btn-alerta {
+  padding: 9px 14px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  border-radius: 20px;
+  border: none;
+  cursor: pointer;
+  color: #fff;
+  transition: all 0.2s;
+}
+
+.btn-alerta:hover {
+  transform: scale(1.03);
+}
+
+.btn-rojo    { background: #dc2626; }
+.btn-amarillo{ background: #eab308; color: #1f2937; }
+
+/* ==================================================
+   💻 ESTILOS SOLO PARA PC (pantallas ≥ 768px)
+   ================================================== */
+@media (min-width: 768px) {
+  body {
+    padding: 30px 40px;
+  }
+
+  .dashboard-container {
+    max-width: 900px;
+  }
+
+  .viaje-section,
+  .alertas-section {
+    padding: 28px 25px;
+    border-radius: 16px;
+  }
+
+  .viaje-section h2 {
+    font-size: 1.6rem;
+    margin-bottom: 20px;
+  }
+
+  .viaje-section label {
+    font-size: 1.05rem;
+  }
+
+  .viaje-section input {
+    padding: 12px 14px;
+    font-size: 1rem;
+  }
+
+  .btn {
+    padding: 12px 22px;
+    font-size: 1rem;
+  }
+
+  .mapa-titulo {
+    font-size: 1.45rem;
+  }
+
+  .mapa-container {
+    height: 420px;
+    border-radius: 16px;
+  }
+
+  .alertas-section h3 {
+    font-size: 1.45rem;
+  }
+
+  .alertas-section input {
+    padding: 12px 14px;
+    font-size: 1rem;
+  }
+
+  .btn-alerta {
+    padding: 10px 18px;
+    font-size: 0.95rem;
+  }
+}/* ==================================================
+   📱 ESTILOS BASE — Diseño pensado primero para celular
+   ================================================== */
+
+/* Contenedor principal */
+.dashboard-container {
+  width: 100%;
+  max-width: 100%;
+  margin: 0 auto;
+  padding: 0;
+}
+
+/* ===== SECCIÓN: NUEVO VIAJE ===== */
+.viaje-section {
+  background: rgba(255, 255, 255, 0.95);
+  padding: 18px 15px;
+  border-radius: 12px;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.viaje-section h2 {
+  font-size: 1.35rem;
+  margin-bottom: 16px;
+  color: #1e3a8a;
+  font-weight: 600;
+}
+
+/* Etiquetas + campos */
+.campo-fila {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-bottom: 10px;
+  gap: 6px 0;
+}
+
+.viaje-section label {
+  min-width: 130px;
+  font-size: 0.95rem;
+  color: #334155;
+  font-weight: 500;
+}
+
+.viaje-section input {
+  flex: 1;
+  min-width: 180px;
+  padding: 10px 12px;
+  font-size: 0.95rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  background: #fcfcfd;
+  transition: border-color 0.2s;
+}
+
+.viaje-section input:focus {
+  outline: none;
+  border-color: #2563eb;
+  background: #fff;
+}
+
+/* Botones */
+.grupo-botones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.btn {
+  padding: 10px 16px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+}
+
+.btn-calc {
+  background: #facc15;
+  color: #1f2937;
+}
+.btn-calc:hover {
+  background: #eab308;
+}
+
+.btn-iniciar {
+  background: #2563eb;
+  color: #fff;
+}
+.btn-iniciar:hover {
+  background: #1d4ed8;
+}
+
+.btn-finalizar {
+  background: #16a34a;
+  color: #fff;
+}
+.btn-finalizar:hover {
+  background: #15803d;
+}
+
+/* ===== SECCIÓN: MAPA ===== */
+.mapa-titulo {
+  font-size: 1.25rem;
+  margin: 10px 0 12px 0;
+  color: #1e3a8a;
+  font-weight: 600;
+}
+
+.mapa-container {
+  width: 100%;
+  height: 300px;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+  margin-bottom: 25px;
+}
+
+.mapa-container .leaflet-container {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* ===== SECCIÓN: ALERTAS ===== */
+.alertas-section {
+  background: rgba(255, 255, 255, 0.95);
+  padding: 18px 15px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.alertas-section h3 {
+  font-size: 1.25rem;
+  margin-bottom: 14px;
+  color: #b91c1c;
+  font-weight: 600;
+}
+
+.alertas-section input {
+  width: 100%;
+  padding: 10px 12px;
+  font-size: 0.95rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  margin-bottom: 14px;
+}
+
+.botones-alertas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.btn-alerta {
+  padding: 9px 14px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  border-radius: 20px;
+  border: none;
+  cursor: pointer;
+  color: #fff;
+  transition: all 0.2s;
+}
+
+.btn-alerta:hover {
+  transform: scale(1.03);
+}
+
+.btn-rojo    { background: #dc2626; }
+.btn-amarillo{ background: #eab308; color: #1f2937; }
+
+/* ==================================================
+   💻 ESTILOS SOLO PARA PC (pantallas ≥ 768px)
+   ================================================== */
+@media (min-width: 768px) {
+  body {
+    padding: 30px 40px;
+  }
+
+  .dashboard-container {
+    max-width: 900px;
+  }
+
+  .viaje-section,
+  .alertas-section {
+    padding: 28px 25px;
+    border-radius: 16px;
+  }
+
+  .viaje-section h2 {
+    font-size: 1.6rem;
+    margin-bottom: 20px;
+  }
+
+  .viaje-section label {
+    font-size: 1.05rem;
+  }
+
+  .viaje-section input {
+    padding: 12px 14px;
+    font-size: 1rem;
+  }
+
+  .btn {
+    padding: 12px 22px;
+    font-size: 1rem;
+  }
+
+  .mapa-titulo {
+    font-size: 1.45rem;
+  }
+
+  .mapa-container {
+    height: 420px;
+    border-radius: 16px;
+  }
+
+  .alertas-section h3 {
+    font-size: 1.45rem;
+  }
+
+  .alertas-section input {
+    padding: 12px 14px;
+    font-size: 1rem;
+  }
+
+  .btn-alerta {
+    padding: 10px 18px;
+    font-size: 0.95rem;
+  }
+}/* ==================================================
+   📱 ESTILOS BASE — Diseño pensado primero para celular
+   ================================================== */
+
+/* Contenedor principal */
+.dashboard-container {
+  width: 100%;
+  max-width: 100%;
+  margin: 0 auto;
+  padding: 0;
+}
+
+/* ===== SECCIÓN: NUEVO VIAJE ===== */
+.viaje-section {
+  background: rgba(255, 255, 255, 0.95);
+  padding: 18px 15px;
+  border-radius: 12px;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.viaje-section h2 {
+  font-size: 1.35rem;
+  margin-bottom: 16px;
+  color: #1e3a8a;
+  font-weight: 600;
+}
+
+/* Etiquetas + campos */
+.campo-fila {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-bottom: 10px;
+  gap: 6px 0;
+}
+
+.viaje-section label {
+  min-width: 130px;
+  font-size: 0.95rem;
+  color: #334155;
+  font-weight: 500;
+}
+
+.viaje-section input {
+  flex: 1;
+  min-width: 180px;
+  padding: 10px 12px;
+  font-size: 0.95rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  background: #fcfcfd;
+  transition: border-color 0.2s;
+}
+
+.viaje-section input:focus {
+  outline: none;
+  border-color: #2563eb;
+  background: #fff;
+}
+
+/* Botones */
+.grupo-botones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.btn {
+  padding: 10px 16px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+}
+
+.btn-calc {
+  background: #facc15;
+  color: #1f2937;
+}
+.btn-calc:hover {
+  background: #eab308;
+}
+
+.btn-iniciar {
+  background: #2563eb;
+  color: #fff;
+}
+.btn-iniciar:hover {
+  background: #1d4ed8;
+}
+
+.btn-finalizar {
+  background: #16a34a;
+  color: #fff;
+}
+.btn-finalizar:hover {
+  background: #15803d;
+}
+
+/* ===== SECCIÓN: MAPA ===== */
+.mapa-titulo {
+  font-size: 1.25rem;
+  margin: 10px 0 12px 0;
+  color: #1e3a8a;
+  font-weight: 600;
+}
+
+.mapa-container {
+  width: 100%;
+  height: 300px;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+  margin-bottom: 25px;
+}
+
+.mapa-container .leaflet-container {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* ===== SECCIÓN: ALERTAS ===== */
+.alertas-section {
+  background: rgba(255, 255, 255, 0.95);
+  padding: 18px 15px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.alertas-section h3 {
+  font-size: 1.25rem;
+  margin-bottom: 14px;
+  color: #b91c1c;
+  font-weight: 600;
+}
+
+.alertas-section input {
+  width: 100%;
+  padding: 10px 12px;
+  font-size: 0.95rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  margin-bottom: 14px;
+}
+
+.botones-alertas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.btn-alerta {
+  padding: 9px 14px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  border-radius: 20px;
+  border: none;
+  cursor: pointer;
+  color: #fff;
+  transition: all 0.2s;
+}
+
+.btn-alerta:hover {
+  transform: scale(1.03);
+}
+
+.btn-rojo    { background: #dc2626; }
+.btn-amarillo{ background: #eab308; color: #1f2937; }
+
+/* ==================================================
+   💻 ESTILOS SOLO PARA PC (pantallas ≥ 768px)
+   ================================================== */
+@media (min-width: 768px) {
+  body {
+    padding: 30px 40px;
+  }
+
+  .dashboard-container {
+    max-width: 900px;
+  }
+
+  .viaje-section,
+  .alertas-section {
+    padding: 28px 25px;
+    border-radius: 16px;
+  }
+
+  .viaje-section h2 {
+    font-size: 1.6rem;
+    margin-bottom: 20px;
+  }
+
+  .viaje-section label {
+    font-size: 1.05rem;
+  }
+
+  .viaje-section input {
+    padding: 12px 14px;
+    font-size: 1rem;
+  }
+
+  .btn {
+    padding: 12px 22px;
+    font-size: 1rem;
+  }
+
+  .mapa-titulo {
+    font-size: 1.45rem;
+  }
+
+  .mapa-container {
+    height: 420px;
+    border-radius: 16px;
+  }
+
+  .alertas-section h3 {
+    font-size: 1.45rem;
+  }
+
+  .alertas-section input {
+    padding: 12px 14px;
+    font-size: 1rem;
+  }
+
+  .btn-alerta {
+    padding: 10px 18px;
+    font-size: 0.95rem;
+  }
+}/* ==================================================
+   📱 ESTILOS BASE — Diseño pensado primero para celular
+   ================================================== */
+
+/* Contenedor principal */
+.dashboard-container {
+  width: 100%;
+  max-width: 100%;
+  margin: 0 auto;
+  padding: 0;
+}
+
+/* ===== SECCIÓN: NUEVO VIAJE ===== */
+.viaje-section {
+  background: rgba(255, 255, 255, 0.95);
+  padding: 18px 15px;
+  border-radius: 12px;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.viaje-section h2 {
+  font-size: 1.35rem;
+  margin-bottom: 16px;
+  color: #1e3a8a;
+  font-weight: 600;
+}
+
+/* Etiquetas + campos */
+.campo-fila {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-bottom: 10px;
+  gap: 6px 0;
+}
+
+.viaje-section label {
+  min-width: 130px;
+  font-size: 0.95rem;
+  color: #334155;
+  font-weight: 500;
+}
+
+.viaje-section input {
+  flex: 1;
+  min-width: 180px;
+  padding: 10px 12px;
+  font-size: 0.95rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  background: #fcfcfd;
+  transition: border-color 0.2s;
+}
+
+.viaje-section input:focus {
+  outline: none;
+  border-color: #2563eb;
+  background: #fff;
+}
+
+/* Botones */
+.grupo-botones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.btn {
+  padding: 10px 16px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+}
+
+.btn-calc {
+  background: #facc15;
+  color: #1f2937;
+}
+.btn-calc:hover {
+  background: #eab308;
+}
+
+.btn-iniciar {
+  background: #2563eb;
+  color: #fff;
+}
+.btn-iniciar:hover {
+  background: #1d4ed8;
+}
+
+.btn-finalizar {
+  background: #16a34a;
+  color: #fff;
+}
+.btn-finalizar:hover {
+  background: #15803d;
+}
+
+/* ===== SECCIÓN: MAPA ===== */
+.mapa-titulo {
+  font-size: 1.25rem;
+  margin: 10px 0 12px 0;
+  color: #1e3a8a;
+  font-weight: 600;
+}
+
+.mapa-container {
+  width: 100%;
+  height: 300px;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+  margin-bottom: 25px;
+}
+
+.mapa-container .leaflet-container {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* ===== SECCIÓN: ALERTAS ===== */
+.alertas-section {
+  background: rgba(255, 255, 255, 0.95);
+  padding: 18px 15px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.alertas-section h3 {
+  font-size: 1.25rem;
+  margin-bottom: 14px;
+  color: #b91c1c;
+  font-weight: 600;
+}
+
+.alertas-section input {
+  width: 100%;
+  padding: 10px 12px;
+  font-size: 0.95rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  margin-bottom: 14px;
+}
+
+.botones-alertas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.btn-alerta {
+  padding: 9px 14px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  border-radius: 20px;
+  border: none;
+  cursor: pointer;
+  color: #fff;
+  transition: all 0.2s;
+}
+
+.btn-alerta:hover {
+  transform: scale(1.03);
+}
+
+.btn-rojo    { background: #dc2626; }
+.btn-amarillo{ background: #eab308; color: #1f2937; }
+
+/* ==================================================
+   💻 ESTILOS SOLO PARA PC (pantallas ≥ 768px)
+   ================================================== */
+@media (min-width: 768px) {
+  body {
+    padding: 30px 40px;
+  }
+
+  .dashboard-container {
+    max-width: 900px;
+  }
+
+  .viaje-section,
+  .alertas-section {
+    padding: 28px 25px;
+    border-radius: 16px;
+  }
+
+  .viaje-section h2 {
+    font-size: 1.6rem;
+    margin-bottom: 20px;
+  }
+
+  .viaje-section label {
+    font-size: 1.05rem;
+  }
+
+  .viaje-section input {
+    padding: 12px 14px;
+    font-size: 1rem;
+  }
+
+  .btn {
+    padding: 12px 22px;
+    font-size: 1rem;
+  }
+
+  .mapa-titulo {
+    font-size: 1.45rem;
+  }
+
+  .mapa-container {
+    height: 420px;
+    border-radius: 16px;
+  }
+
+  .alertas-section h3 {
+    font-size: 1.45rem;
+  }
+
+  .alertas-section input {
+    padding: 12px 14px;
+    font-size: 1rem;
+  }
+
+  .btn-alerta {
+    padding: 10px 18px;
+    font-size: 0.95rem;
+  }
 }

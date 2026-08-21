@@ -9,7 +9,7 @@
   <meta name="theme-color" content="#1a3a6b">
   <link rel="apple-touch-icon" href="icons/icon-192.png">
   <style>
-    /* ===== ESTILOS BASE (celular primero) ===== */
+    /* ===== ESTILOS BASE — Diseño para CELULAR primero ===== */
     * {
       box-sizing: border-box;
       margin: 0;
@@ -33,12 +33,24 @@
     }
 
     .login-card {
-      background: #fff;
+      background: #ffffff;
       width: 100%;
       max-width: 400px;
-      padding: 25px 20px;
+      padding: 28px 22px;
       border-radius: 16px;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
+      animation: aparecer 0.4s ease-out;
+    }
+
+    @keyframes aparecer {
+      from {
+        opacity: 0;
+        transform: translateY(12px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
 
     .logo {
@@ -51,11 +63,20 @@
       text-align: center;
       color: #1a3a6b;
       margin-bottom: 8px;
-      font-size: 1.4rem;
+      font-size: 1.45rem;
+      font-weight: 700;
+    }
+
+    .subtitulo {
+      text-align: center;
+      color: #64748b;
+      margin-bottom: 22px;
+      font-size: 0.9rem;
+      line-height: 1.4;
     }
 
     .form-group {
-      margin-bottom: 16px;
+      margin-bottom: 18px;
     }
 
     .form-group label {
@@ -66,6 +87,10 @@
       font-size: 0.95rem;
     }
 
+    .form-group {
+      position: relative;
+    }
+
     .form-control {
       width: 100%;
       padding: 12px 14px;
@@ -73,12 +98,30 @@
       border-radius: 8px;
       font-size: 1rem;
       transition: border-color 0.2s, box-shadow 0.2s;
+      background-color: #fcfcfd;
     }
 
     .form-control:focus {
       outline: none;
       border-color: #1a3a6b;
+      background-color: #ffffff;
       box-shadow: 0 0 0 3px rgba(26, 58, 107, 0.15);
+    }
+
+    .ver-contrasena {
+      position: absolute;
+      right: 12px;
+      bottom: 12px;
+      background: transparent;
+      border: none;
+      font-size: 18px;
+      color: #64748b;
+      cursor: pointer;
+      transition: color 0.2s;
+    }
+
+    .ver-contrasena:hover {
+      color: #2563eb;
     }
 
     .btn {
@@ -92,10 +135,11 @@
 
     .btn-primary {
       background-color: #1a3a6b;
-      color: #fff;
+      color: #ffffff;
       width: 100%;
       padding: 13px;
       margin-top: 8px;
+      font-weight: 600;
     }
 
     .btn-primary:hover {
@@ -106,22 +150,15 @@
       transform: scale(0.98);
     }
 
-    .ver-contrasena {
-      position: absolute;
-      right: 12px;
-      bottom: 10px;
-      background: transparent;
-      border: none;
-      font-size: 18px;
-      color: #64748b;
-      cursor: pointer;
-      transition: color 0.2s;
-    }
-    .ver-contrasena:hover {
-      color: #2563eb;
+    .mensaje-ayuda {
+      text-align: center;
+      margin-top: 18px;
+      color: #6b7280;
+      font-size: 0.85rem;
+      line-height: 1.4;
     }
 
-    /* ===== SOLO EN PC (pantallas anchas) ===== */
+    /* ===== 💻 ESTILOS SOLO PARA PC (pantallas ≥ 768px) ===== */
     @media (min-width: 768px) {
       body {
         padding: 40px;
@@ -129,9 +166,9 @@
 
       .login-card {
         max-width: 440px;
-        padding: 40px 35px;
+        padding: 42px 38px;
         border-radius: 20px;
-        box-shadow: 0 12px 48px rgba(0,0,0,0.22);
+        box-shadow: 0 12px 48px rgba(0, 0, 0, 0.22);
       }
 
       .logo {
@@ -141,11 +178,20 @@
 
       h2 {
         font-size: 1.8rem;
-        margin-bottom: 12px;
+        margin-bottom: 10px;
+      }
+
+      .subtitulo {
+        font-size: 1rem;
+        margin-bottom: 28px;
       }
 
       .form-group {
-        margin-bottom: 20px;
+        margin-bottom: 22px;
+      }
+
+      .form-group label {
+        font-size: 1rem;
       }
 
       .form-control {
@@ -153,14 +199,20 @@
         font-size: 1.02rem;
       }
 
+      .ver-contrasena {
+        font-size: 20px;
+        right: 14px;
+        bottom: 13px;
+      }
+
       .btn-primary {
         padding: 15px;
         font-size: 1.05rem;
       }
 
-      p {
-        font-size: 0.9rem !important;
-        margin-top: 20px !important;
+      .mensaje-ayuda {
+        margin-top: 22px;
+        font-size: 0.9rem;
       }
     }
   </style>
@@ -170,27 +222,33 @@
     <div class="login-card">
       <div class="logo">🚐</div>
       <h2>Traslados Vans</h2>
-      <p style="text-align:center; color: var(--text-muted); margin-bottom:20px;">
+      <p class="subtitulo">
         Sistema de gestión de traslados
       </p>
+
       <div class="form-group">
         <label for="nombre">Nombre</label>
         <input type="text" id="nombre" class="form-control" placeholder="Tu nombre" autocomplete="off">
       </div>
+
       <div class="form-group">
         <label for="apellido">Apellido</label>
         <input type="text" id="apellido" class="form-control" placeholder="Tu apellido" autocomplete="off">
       </div>
-      <div class="form-group" style="position: relative;">
+
+      <div class="form-group">
         <label for="password">Contraseña</label>
-        <input type="password" id="password" class="form-control" placeholder="Contraseña" style="padding-right: 42px;">
+        <input type="password" id="password" class="form-control" placeholder="Contraseña" style="padding-right: 44px;">
         <button type="button" class="ver-contrasena" data-target="password">👁</button>
       </div>
+
       <div id="login-error" style="color: var(--alert-red); text-align: center; margin-bottom: 10px; min-height: 20px;"></div>
+
       <button id="btn-login" class="btn btn-primary btn-block btn-lg">
         🔑 Iniciar Sesión
       </button>
-      <p style="text-align:center; margin-top:15px; color: var(--text-muted); font-size:0.8rem;">
+
+      <p class="mensaje-ayuda">
         Ingresa con tu usuario asignado por el dueño
       </p>
     </div>
