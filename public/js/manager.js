@@ -80,7 +80,7 @@ async function loadDrivers() {
         selectChofer.appendChild(option);
       }
 
-      const mensajeWhatsApp = `Hola ${data.nombre} ${data.apellido}, te comunico desde la plataforma Traslados Vans.\n\nTus credenciales de acceso son:\nUsuario: ${data.nombre} ${data.apellido}\nContraseña: ${data.password}\n\nIngresá en: https://traslados-ops.vercel.app`;
+      const mensajeWhatsApp = `Hola ${data.nombre} ${data.apellido}, te comunico desde la plataforma Traslados Vans.\n\nTus credenciales de acceso son:\n🏢 Código de empresa: ${companyId}\n👤 Usuario: ${data.nombre} ${data.apellido}\n🔑 Contraseña: ${data.password}\n\nIngresá en: https://traslados-ops.vercel.app/index.html`;
 
       const fila = document.createElement('tr');
       fila.innerHTML = `
