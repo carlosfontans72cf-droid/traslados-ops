@@ -88,6 +88,39 @@ async function googleGeocode(address) {
   return response.results[0];
 }
 
+// 🗺️ Decodificar el "encoded polyline" que devuelve Google Directions
+// para poder dibujar la ruta real en un mapa Leaflet.
+// (algoritmo estándar de decodificación de polylines de Google)
+export function decodePolyline(encoded) {
+  if (!encoded) return [];
+  let points = [];
+  let index = 0, lat = 0, lng = 0;
+
+  while (index < encoded.length) {
+    let b, shift = 0, result = 0;
+    do {
+      b = encoded.charCodeAt(index++) - 63;
+      result |= (b & 0x1f) << shift;
+      shift += 5;
+    } while (b >= 0x20);
+    const dlat = (result & 1) ? ~(result >> 1) : (result >> 1);
+    lat += dlat;
+
+    shift = 0;
+    result = 0;
+    do {
+      b = encoded.charCodeAt(index++) - 63;
+      result |= (b & 0x1f) << shift;
+      shift += 5;
+    } while (b >= 0x20);
+    const dlng = (result & 1) ? ~(result >> 1) : (result >> 1);
+    lng += dlng;
+
+    points.push([lat / 1e5, lng / 1e5]);
+  }
+  return points;
+}
+
 // 🚘 Calcular distancia, duración y costo del viaje
 // ✅ USA NUESTRO SERVIDOR - SIN CORS - SIN SERVICE WORKER INTERFIRIENDO
 //
@@ -181,7 +214,10 @@ export async function calculateRouteCost(origen, destino, precios, personas = 1,
     zonaNombre: modo === 'zona' ? zonaNombre : null,
     etiquetaModo,
     direccionCompletaOrigen: origResult.formatted_address,
-    direccionCompletaDestino: destResult.formatted_address
+    direccionCompletaDestino: destResult.formatted_address,
+    origenCoords: { lat: oLat, lng: oLng },
+    destinoCoords: { lat: dLat, lng: dLng },
+    rutaPuntos: decodePolyline(route.overview_polyline?.points)
   };
 }
 

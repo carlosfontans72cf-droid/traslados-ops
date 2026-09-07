@@ -20,6 +20,8 @@ let map, marker;
 let watchId = null;
 let tripActive = false;
 let tripStartTime = null;
+let capaRuta = null;      // polyline de la ruta dibujada en el mapa
+let marcadoresRuta = [];  // marcadores de origen/destino
 
 // Mostrar nombre en pantalla
 const nombreElemento = document.getElementById('driver-name');
@@ -108,6 +110,42 @@ function setupModoTarifaToggle() {
   actualizar();
 }
 
+// ========== DIBUJAR RUTA EN EL MAPA ==========
+function dibujarRutaEnMapa(resultado) {
+  if (!map) return;
+
+  // Limpiar ruta/marcadores anteriores
+  if (capaRuta) { map.removeLayer(capaRuta); capaRuta = null; }
+  marcadoresRuta.forEach(m => map.removeLayer(m));
+  marcadoresRuta = [];
+
+  if (!resultado.rutaPuntos || resultado.rutaPuntos.length === 0) return;
+
+  capaRuta = L.polyline(resultado.rutaPuntos, { color: '#2563eb', weight: 5, opacity: 0.85 }).addTo(map);
+
+  const mOrigen = L.marker([resultado.origenCoords.lat, resultado.origenCoords.lng])
+    .addTo(map).bindPopup('🟢 Origen');
+  const mDestino = L.marker([resultado.destinoCoords.lat, resultado.destinoCoords.lng])
+    .addTo(map).bindPopup('🔴 Destino');
+  marcadoresRuta.push(mOrigen, mDestino);
+
+  // Ajustar el zoom para que se vea toda la ruta
+  map.fitBounds(capaRuta.getBounds(), { padding: [30, 30] });
+}
+
+// ========== ABRIR RUTA EN GOOGLE MAPS (navegación real) ==========
+function construirUrlGoogleMaps(origen, destino) {
+  return `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(origen)}&destination=${encodeURIComponent(destino)}&travelmode=driving`;
+}
+
+window.abrirEnGoogleMaps = () => {
+  const datos = window._ultimoCalculo;
+  if (!datos) {
+    return showAlert("ℹ️ Primero calculá el costo del viaje", "warning");
+  }
+  window.open(construirUrlGoogleMaps(datos.origen, datos.destino), '_blank');
+};
+
 // ========== CALCULAR PRECIO Y DATOS DEL VIAJE ==========
 window.calculateCost = async () => {
   const origen = document.getElementById('trip-origen').value.trim();
@@ -141,6 +179,14 @@ window.calculateCost = async () => {
     window._ultimoCalculo = { 
         ...resultado, origen, destino, personas 
     };
+
+    // 🗺️ Dibujar la ruta real en el mapa
+    dibujarRutaEnMapa(resultado);
+
+    // Mostrar botón para abrir navegación en Google Maps
+    const btnGoogleMaps = document.getElementById('btn-google-maps');
+    if (btnGoogleMaps) btnGoogleMaps.style.display = 'block';
+
     showAlert("✅ Cálculo realizado correctamente", "success");
 
   } catch (err) {
@@ -158,6 +204,11 @@ window.startTrip = async () => {
   }
 
   const datos = window._ultimoCalculo;
+
+  // 🗺️ Abrir Google Maps con la ruta lista para navegar
+  // (se hace ANTES de cualquier await, para que el navegador no bloquee la ventana emergente)
+  window.open(construirUrlGoogleMaps(datos.origen, datos.destino), '_blank');
+
   try {
     // Registrar viaje en base de datos
     await addDoc(collection(db, 'companies', companyId, 'trips'), {
@@ -217,6 +268,14 @@ window.endTrip = async () => {
 
     tripActive = false;
     tripStartTime = null;
+
+    // Limpiar ruta dibujada y ocultar botón de Google Maps
+    if (capaRuta) { map.removeLayer(capaRuta); capaRuta = null; }
+    marcadoresRuta.forEach(m => map.removeLayer(m));
+    marcadoresRuta = [];
+    const btnGoogleMaps = document.getElementById('btn-google-maps');
+    if (btnGoogleMaps) btnGoogleMaps.style.display = 'none';
+
     showAlert("✅ Viaje FINALIZADO y guardado correctamente", "success");
 
   } catch(err) {
