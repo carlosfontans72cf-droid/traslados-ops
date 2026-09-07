@@ -1,4 +1,4 @@
-﻿{
+{
   "dependencies": {
     "firebase-admin": "^14.3.0"
   },
