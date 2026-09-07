@@ -45,6 +45,9 @@ function setupListeners() {
   // ✅ Nuevos listeners para crear viaje
   document.getElementById('btn-calc-trip')?.addEventListener('click', calculateManagerTrip);
   document.getElementById('btn-create-trip')?.addEventListener('click', createManagerTrip);
+  // ✅ Gestión de zonas y modo de tarifa
+  document.getElementById('btn-add-zona')?.addEventListener('click', agregarZona);
+  setupModoTarifaToggle('manager-trip-modo', 'manager-zona-select-wrap');
 }
 
 // ========== GESTION USUARIOS ==========
@@ -168,35 +171,125 @@ window.deleteUser = async (idUsuario) => {
 };
 
 // ========== PRECIOS ==========
+let zonasActuales = []; // caché en memoria de las zonas cargadas
+
 async function loadPrices() {
   const precioRef = doc(db, 'companies', companyId, 'config', 'prices');
   const precioDoc = await getDoc(precioRef);
-  if (precioDoc.exists()) {
-    const p = precioDoc.data();
-    const elPersona = document.getElementById('price-persona');
-    const elZona = document.getElementById('price-zona');
-    const elKm = document.getElementById('price-km');
-    const elHora = document.getElementById('price-hora');
-    if(elPersona) elPersona.value = p.porPersona || 0;
-    if(elZona) elZona.value = p.porZona || 0;
-    if(elKm) elKm.value = p.porKm || 0;
-    if(elHora) elHora.value = p.porHora || 0;
-  }
+  const p = precioDoc.exists() ? precioDoc.data() : {};
+
+  const elPersona = document.getElementById('price-persona');
+  const elKm = document.getElementById('price-km');
+  const elHora = document.getElementById('price-hora');
+  if(elPersona) elPersona.value = p.porPersona || 0;
+  if(elKm) elKm.value = p.porKm || 0;
+  if(elHora) elHora.value = p.porHora || 0;
+
+  zonasActuales = Array.isArray(p.zonas) ? p.zonas : [];
+  renderZonas();
+  poblarSelectZona();
 }
 
 async function savePrices() {
   try {
     await setDoc(doc(db, 'companies', companyId, 'config', 'prices'), {
       porPersona: parseFloat(document.getElementById('price-persona').value) || 0,
-      porZona: parseFloat(document.getElementById('price-zona').value) || 0,
       porKm: parseFloat(document.getElementById('price-km').value) || 0,
       porHora: parseFloat(document.getElementById('price-hora').value) || 0,
       updatedAt: serverTimestamp()
-    });
-    showAlert(' Precios guardados correctamente', 'success');
+    }, { merge: true });
+    showAlert('💰 Precios guardados correctamente', 'success');
   } catch (err) {
     showAlert(`❌ Error al guardar precios: ${err.message}`, 'danger');
   }
+}
+
+// ========== GESTIÓN DE ZONAS ==========
+function renderZonas() {
+  const contenedor = document.getElementById('zonas-list');
+  if (!contenedor) return;
+
+  if (zonasActuales.length === 0) {
+    contenedor.innerHTML = '<div class="zonas-vacio">Todavía no hay zonas configuradas</div>';
+    return;
+  }
+
+  contenedor.innerHTML = zonasActuales.map(z => `
+    <div class="zona-fila">
+      <span><span class="zona-nombre">📍 ${z.nombre}</span><span class="zona-precio">$${z.precioPorKm}/km</span></span>
+      <button class="zona-eliminar" onclick="eliminarZona('${z.nombre.replace(/'/g, "\\'")}')" title="Eliminar zona">🗑</button>
+    </div>
+  `).join('');
+}
+
+function poblarSelectZona() {
+  const select = document.getElementById('manager-trip-zona');
+  if (!select) return;
+  select.innerHTML = '<option value="">-- Seleccionar zona --</option>' +
+    zonasActuales.map(z => `<option value="${z.nombre}">${z.nombre} ($${z.precioPorKm}/km)</option>`).join('');
+}
+
+async function agregarZona() {
+  const nombre = document.getElementById('zona-nombre-input')?.value.trim();
+  const precio = parseFloat(document.getElementById('zona-precio-input')?.value);
+
+  if (!nombre || isNaN(precio) || precio < 0) {
+    return showAlert('⚠️ Completá nombre y precio por km de la zona', 'warning');
+  }
+  if (zonasActuales.some(z => z.nombre.toLowerCase() === nombre.toLowerCase())) {
+    return showAlert('⚠️ Ya existe una zona con ese nombre', 'warning');
+  }
+
+  zonasActuales.push({ nombre, precioPorKm: precio });
+
+  try {
+    await setDoc(doc(db, 'companies', companyId, 'config', 'prices'), {
+      zonas: zonasActuales,
+      updatedAt: serverTimestamp()
+    }, { merge: true });
+
+    document.getElementById('zona-nombre-input').value = '';
+    document.getElementById('zona-precio-input').value = '';
+    renderZonas();
+    poblarSelectZona();
+    showAlert(`✅ Zona "${nombre}" agregada`, 'success');
+  } catch (err) {
+    zonasActuales.pop();
+    showAlert(`❌ Error al agregar zona: ${err.message}`, 'danger');
+  }
+}
+
+window.eliminarZona = async (nombreZona) => {
+  if (!confirm(`¿Eliminar la zona "${nombreZona}"?`)) return;
+
+  const respaldo = [...zonasActuales];
+  zonasActuales = zonasActuales.filter(z => z.nombre !== nombreZona);
+
+  try {
+    await setDoc(doc(db, 'companies', companyId, 'config', 'prices'), {
+      zonas: zonasActuales,
+      updatedAt: serverTimestamp()
+    }, { merge: true });
+
+    renderZonas();
+    poblarSelectZona();
+    showAlert('🗑 Zona eliminada', 'success');
+  } catch (err) {
+    zonasActuales = respaldo;
+    showAlert(`❌ Error al eliminar zona: ${err.message}`, 'danger');
+  }
+};
+
+function setupModoTarifaToggle(idModo, idWrap) {
+  const selectModo = document.getElementById(idModo);
+  const wrapZona = document.getElementById(idWrap);
+  if (!selectModo || !wrapZona) return;
+
+  const actualizar = () => {
+    wrapZona.classList.toggle('visible', selectModo.value === 'zona');
+  };
+  selectModo.addEventListener('change', actualizar);
+  actualizar();
 }
 
 // ========== NUEVO: CREAR VIAJE DESDE ADMIN ==========
@@ -204,22 +297,27 @@ window.calculateManagerTrip = async () => {
   const origen = document.getElementById('manager-trip-origen')?.value.trim();
   const destino = document.getElementById('manager-trip-destino')?.value.trim();
   const personas = parseInt(document.getElementById('manager-trip-personas')?.value) || 1;
+  const modo = document.getElementById('manager-trip-modo')?.value || 'km';
+  const zonaNombre = document.getElementById('manager-trip-zona')?.value || null;
 
   if (!origen || !destino) {
     return showAlert("⚠️ Escribí origen y destino", "warning");
   }
+  if (modo === 'zona' && !zonaNombre) {
+    return showAlert("📍 Seleccioná una zona", "warning");
+  }
 
   try {
     const priceSnap = await getDoc(doc(db, 'companies', companyId, 'config', 'prices'));
-    const precios = priceSnap.exists() ? priceSnap.data() : { porPersona:0, porZona:0, porKm:0, porHora:0 };
-    const resultado = await calculateRouteCost(origen, destino, precios, personas);
+    const precios = priceSnap.exists() ? priceSnap.data() : { porPersona:0, porKm:0, porHora:0, zonas:[] };
+    const resultado = await calculateRouteCost(origen, destino, precios, personas, modo, zonaNombre);
 
     const resultDiv = document.getElementById('manager-trip-result');
     if(resultDiv) {
       resultDiv.style.display = 'block';
       document.getElementById('manager-trip-cost-display').textContent = resultado.costo;
       document.getElementById('manager-trip-distance-display').textContent = `📏 Distancia: ${resultado.distance}`;
-      document.getElementById('manager-trip-duration-display').textContent = `⏱ Tiempo aprox: ${resultado.duration}`;
+      document.getElementById('manager-trip-duration-display').textContent = `⏱ Tiempo aprox: ${resultado.duration} · ${resultado.etiquetaModo}`;
     }
 
     window._managerTripData = { ...resultado, origen, destino, personas };
@@ -253,6 +351,8 @@ window.createManagerTrip = async () => {
       costoTotal: datos.costo,
       distanciaKm: datos.distanceKm,
       horasEstimadas: datos.durationHours,
+      modoTarifa: datos.modo,
+      zonaAplicada: datos.zonaNombre,
       estado: "asignado",
       creadoPor: "manager",
       fechaInicio: serverTimestamp()

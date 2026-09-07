@@ -8,8 +8,11 @@ import { showAlert, getCurrentLocation, calculateRouteCost } from './utils.js';
 let driverId = sessionStorage.getItem('userId');
 let driverName = sessionStorage.getItem('fullName');
 
+// ✅ Empresa del usuario logueado — todo el panel opera dentro de este "cajón"
+const companyId = sessionStorage.getItem('companyId');
+
 // Redirigir si NO hay sesión activa
-if (!driverId || !driverName) {
+if (!driverId || !driverName || !companyId) {
     window.location.href = '/';
 }
 
@@ -61,7 +64,7 @@ function startGPS() {
       if (marker) marker.setLatLng([latitude, longitude]);
       // Guardar ubicación actualizada en usuario
       try {
-        await updateDoc(doc(db, 'users', driverId), {
+        await updateDoc(doc(db, 'companies', companyId, 'users', driverId), {
           lat: latitude, 
           lng: longitude, 
           lastUpdate: serverTimestamp()
@@ -78,29 +81,61 @@ function startGPS() {
   );
 }
 
+// ========== CARGAR ZONAS DISPONIBLES PARA ELEGIR AL CREAR VIAJE ==========
+async function cargarZonasDisponibles() {
+  const select = document.getElementById('trip-zona');
+  if (!select) return;
+  try {
+    const priceSnap = await getDoc(doc(db, 'companies', companyId, 'config', 'prices'));
+    const zonas = priceSnap.exists() ? (priceSnap.data().zonas || []) : [];
+    select.innerHTML = '<option value="">-- Seleccionar zona --</option>' +
+      zonas.map(z => `<option value="${z.nombre}">${z.nombre} ($${z.precioPorKm}/km)</option>`).join('');
+  } catch (err) {
+    console.warn('No se pudieron cargar las zonas:', err);
+  }
+}
+
+// Mostrar/ocultar el select de zona según el modo de tarifa elegido
+function setupModoTarifaToggle() {
+  const selectModo = document.getElementById('trip-modo');
+  const wrapZona = document.getElementById('zona-select-wrap');
+  if (!selectModo || !wrapZona) return;
+
+  const actualizar = () => {
+    wrapZona.classList.toggle('visible', selectModo.value === 'zona');
+  };
+  selectModo.addEventListener('change', actualizar);
+  actualizar();
+}
+
 // ========== CALCULAR PRECIO Y DATOS DEL VIAJE ==========
 window.calculateCost = async () => {
   const origen = document.getElementById('trip-origen').value.trim();
   const destino = document.getElementById('trip-destino').value.trim();
   const personas = parseInt(document.getElementById('trip-personas').value) || 1;
+  const modo = document.getElementById('trip-modo')?.value || 'km';
+  const zonaNombre = document.getElementById('trip-zona')?.value || null;
 
   if (!origen || !destino) {
     return showAlert("⚠️ Escribe punto de ORIGEN y DESTINO", "warning");
   }
+  if (modo === 'zona' && !zonaNombre) {
+    return showAlert("📍 Seleccioná una zona", "warning");
+  }
 
   try {
     // Leer lista de precios configurada
-    const priceSnap = await getDoc(doc(db, 'config', 'prices'));
-    const precios = priceSnap.exists() ? priceSnap.data() : { porPersona:0, porZona:0, porKm:0, porHora:0 };
+    const priceSnap = await getDoc(doc(db, 'companies', companyId, 'config', 'prices'));
+    const precios = priceSnap.exists() ? priceSnap.data() : { porPersona:0, porKm:0, porHora:0, zonas:[] };
 
-    // Calcular distancia, tiempo y monto
-    const resultado = await calculateRouteCost(origen, destino, precios, personas);
+    // Calcular distancia, tiempo y monto (un solo modo, no se suman)
+    const resultado = await calculateRouteCost(origen, destino, precios, personas, modo, zonaNombre);
 
     // Mostrar resultados en pantalla
     document.getElementById('trip-result').style.display = 'block';
     document.getElementById('trip-cost-display').textContent = resultado.costo;
     document.getElementById('trip-distance-display').textContent = `📏 Distancia: ${resultado.distance}`;
-    document.getElementById('trip-duration-display').textContent = `⏱ Tiempo aprox: ${resultado.duration}`;
+    document.getElementById('trip-duration-display').textContent = `⏱ Tiempo aprox: ${resultado.duration} · ${resultado.etiquetaModo}`;
 
     // Guardar datos para iniciar luego
     window._ultimoCalculo = { 
@@ -125,7 +160,7 @@ window.startTrip = async () => {
   const datos = window._ultimoCalculo;
   try {
     // Registrar viaje en base de datos
-    await addDoc(collection(db, 'trips'), {
+    await addDoc(collection(db, 'companies', companyId, 'trips'), {
       userId: driverId,
       nombreConductor: driverName,
       origen: datos.origen,
@@ -134,6 +169,8 @@ window.startTrip = async () => {
       costoTotal: datos.costo,
       distanciaKm: datos.distanceKm,
       horasEstimadas: datos.durationHours,
+      modoTarifa: datos.modo,
+      zonaAplicada: datos.zonaNombre,
       estado: "en_curso",
       fechaInicio: serverTimestamp(),
       latInicio: marker ? marker.getLatLng().lat : null,
@@ -158,7 +195,7 @@ window.endTrip = async () => {
   try {
     // Buscar viaje propio que quede abierto/en curso
     const consulta = query(
-      collection(db, 'trips'),
+      collection(db, 'companies', companyId, 'trips'),
       where('userId', '==', driverId),
       where('estado', '==', 'en_curso')
     );
@@ -171,7 +208,7 @@ window.endTrip = async () => {
 
     // Cerrar registrando hora final
     const viajeDoc = resultado.docs[0];
-    await updateDoc(doc(db, 'trips', viajeDoc.id), {
+    await updateDoc(doc(db, 'companies', companyId, 'trips', viajeDoc.id), {
       estado: "finalizado",
       fechaFin: serverTimestamp(),
       latFin: marker ? marker.getLatLng().lat : null,
@@ -196,10 +233,10 @@ window.sendAlert = async (tipoAlerta) => {
 
   try {
     // Obtener ubicación actual para adjuntar
-    const ubicacionUser = await getDoc(doc(db, 'users', driverId));
+    const ubicacionUser = await getDoc(doc(db, 'companies', companyId, 'users', driverId));
     const datosUser = ubicacionUser.exists() ? ubicacionUser.data() : {};
 
-    await addDoc(collection(db, 'alerts'), {
+    await addDoc(collection(db, 'companies', companyId, 'alerts'), {
       tipo: tipoAlerta,
       descripcion: descripcion,
       userId: driverId,
@@ -238,3 +275,5 @@ document.addEventListener('click', (e) => {
 
 // INICIAR TODO AL CARGAR
 initMap();
+cargarZonasDisponibles();
+setupModoTarifaToggle();

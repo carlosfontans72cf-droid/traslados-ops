@@ -90,7 +90,17 @@ async function googleGeocode(address) {
 
 // 🚘 Calcular distancia, duración y costo del viaje
 // ✅ USA NUESTRO SERVIDOR - SIN CORS - SIN SERVICE WORKER INTERFIRIENDO
-export async function calculateRouteCost(origen, destino, precios, personas = 1) {
+//
+// 💰 SISTEMA DE TARIFA ÚNICA: cada viaje se cobra con UN SOLO modo de tarifa,
+// nunca se suman. Los modos posibles son:
+//   'km'      -> distanciaKm * precios.porKm
+//   'hora'    -> duracionHoras * precios.porHora
+//   'persona' -> cantidadPersonas * precios.porPersona
+//   'zona'    -> distanciaKm * precio-por-km DE LA ZONA elegida (zonaNombre)
+//
+// precios.zonas es un array de { nombre, precioPorKm } que administra el
+// dueño/manager desde "Configuración de Precios".
+export async function calculateRouteCost(origen, destino, precios, personas = 1, modo = 'km', zonaNombre = null) {
   if (!origen?.trim() || !destino?.trim()) {
     throw new Error('️ Escribí correctamente Origen y Destino');
   }
@@ -127,27 +137,49 @@ export async function calculateRouteCost(origen, destino, precios, personas = 1)
 
   const distanceKm = Number((leg.distance.value / 1000).toFixed(2));
   const durationHours = Number((leg.duration.value / 3600).toFixed(2));
-
-  // 💰 Cálculo de costo
-  const pKm = Number(precios?.porKm) || 0;
-  const pHora = Number(precios?.porHora) || 0;
-  const pPersona = Number(precios?.porPersona) || 0;
-  const pZona = Number(precios?.porZona) || 0;
   const cantPersonas = Math.max(1, Number(personas) || 1);
 
-  const costoTotal = (
-    distanceKm * pKm +
-    durationHours * pHora +
-    cantPersonas * pPersona +
-    pZona
-  ).toFixed(2);
+  // 💰 Cálculo de costo — SOLO el modo elegido, nunca se suman entre sí
+  let costoTotal = 0;
+  let etiquetaModo = '';
+
+  if (modo === 'zona') {
+    const zona = (precios?.zonas || []).find(z => z.nombre === zonaNombre);
+    if (!zona) {
+      throw new Error('📍 Seleccioná una zona válida configurada por tu empresa');
+    }
+    costoTotal = distanceKm * (Number(zona.precioPorKm) || 0);
+    etiquetaModo = `Zona: ${zona.nombre} ($${zona.precioPorKm}/km)`;
+
+  } else if (modo === 'hora') {
+    const pHora = Number(precios?.porHora) || 0;
+    costoTotal = durationHours * pHora;
+    etiquetaModo = `Por hora ($${pHora}/h)`;
+
+  } else if (modo === 'persona') {
+    const pPersona = Number(precios?.porPersona) || 0;
+    costoTotal = cantPersonas * pPersona;
+    etiquetaModo = `Por persona ($${pPersona} x ${cantPersonas})`;
+
+  } else {
+    // 'km' es el modo por defecto
+    const pKm = Number(precios?.porKm) || 0;
+    costoTotal = distanceKm * pKm;
+    etiquetaModo = `Por kilómetro ($${pKm}/km)`;
+  }
+
+  costoTotal = Number(costoTotal.toFixed(2));
 
   return {
     costo: `$${costoTotal}`,
+    costoNumero: costoTotal,
     distance: `${leg.distance.text} (${distanceKm.toFixed(1)} km)`,
     duration: `${leg.duration.text} (${durationHours.toFixed(1)} h)`,
     distanceKm,
     durationHours,
+    modo,
+    zonaNombre: modo === 'zona' ? zonaNombre : null,
+    etiquetaModo,
     direccionCompletaOrigen: origResult.formatted_address,
     direccionCompletaDestino: destResult.formatted_address
   };

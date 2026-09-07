@@ -12,7 +12,7 @@
       padding: 20px;
       color: #e5e7eb;
     }
-    .wrap { max-width: 720px; margin: 0 auto; }
+    .wrap { max-width: 900px; margin: 0 auto; }
     h1 { font-size: 1.5rem; margin-bottom: 6px; color: #facc15; }
     .subtitulo { color: #9ca3af; margin-bottom: 24px; font-size: 0.92rem; }
     .card {
@@ -35,28 +35,43 @@
     }
     .campo input:focus { outline: none; border-color: #facc15; }
     .btn {
-      min-height: 46px;
-      padding: 12px 20px;
+      min-height: 42px;
+      padding: 10px 16px;
       border: none;
-      border-radius: 10px;
+      border-radius: 8px;
       background: #facc15;
       color: #111827;
       font-weight: 700;
-      font-size: 0.98rem;
+      font-size: 0.9rem;
       cursor: pointer;
-      width: 100%;
     }
-    .btn:hover { filter: brightness(1.05); }
-    .btn-sm { width: auto; min-height: 38px; padding: 8px 14px; font-size: 0.85rem; }
+    .btn:hover { filter: brightness(1.08); }
+    .btn-block { width: 100%; min-height: 46px; }
+    .btn-sm { min-height: 34px; padding: 6px 12px; font-size: 0.8rem; }
     .btn-danger { background: #dc2626; color: #fff; }
+    .btn-success { background: #16a34a; color: #fff; }
+    .btn-info { background: #2563eb; color: #fff; }
+    .btn-secondary { background: #4b5563; color: #f1f5f9; }
     #panel-login { display: block; }
     #panel-admin { display: none; }
     #msg { min-height: 20px; color: #f87171; text-align: center; margin-top: 8px; font-size: 0.9rem; }
-    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-    th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid #374151; font-size: 0.88rem; }
-    .badge { padding: 3px 10px; border-radius: 999px; font-size: 0.78rem; font-weight: 600; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.85rem; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #374151; vertical-align: middle; }
+    th { color: #9ca3af; font-weight: 600; font-size: 0.78rem; text-transform: uppercase; }
+    .badge { padding: 3px 10px; border-radius: 999px; font-size: 0.78rem; font-weight: 600; white-space: nowrap; }
     .badge-on { background: #14532d; color: #86efac; }
     .badge-off { background: #7f1d1d; color: #fca5a5; }
+    .fila-acciones { display: flex; gap: 6px; flex-wrap: wrap; }
+    .empresa-codigo { font-family: monospace; font-weight: 700; color: #facc15; }
+    .vacio { text-align: center; color: #6b7280; padding: 20px; font-size: 0.9rem; }
+    .buscador { margin-bottom: 12px; }
+    .toast {
+      position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+      background: #16a34a; color: #fff; padding: 12px 22px; border-radius: 10px;
+      font-size: 0.9rem; font-weight: 600; box-shadow: 0 4px 14px rgba(0,0,0,0.3);
+      opacity: 0; transition: opacity 0.25s ease; pointer-events: none; z-index: 999;
+    }
+    .toast.mostrar { opacity: 1; }
   </style>
 </head>
 <body>
@@ -74,7 +89,7 @@
         <label for="sa-password">Contraseña</label>
         <input type="password" id="sa-password" placeholder="Contraseña">
       </div>
-      <button id="btn-sa-login" class="btn">Ingresar</button>
+      <button id="btn-sa-login" class="btn btn-block">Ingresar</button>
       <div id="msg"></div>
     </div>
 
@@ -104,19 +119,33 @@
           <label for="owner-password">Contraseña del dueño</label>
           <input type="text" id="owner-password" placeholder="Contraseña temporal">
         </div>
-        <button id="btn-crear-empresa" class="btn">Crear empresa</button>
+        <button id="btn-crear-empresa" class="btn btn-block btn-success">Crear empresa</button>
         <div id="msg-crear" style="min-height:20px; text-align:center; margin-top:8px; font-size:0.9rem;"></div>
       </div>
 
       <div class="card">
         <h2 style="margin-bottom:14px; font-size:1.1rem;">🏢 Empresas registradas</h2>
+        <input type="text" id="buscador-empresas" class="buscador" placeholder="🔎 Buscar por código o nombre..."
+               style="width:100%; padding:10px 12px; border-radius:8px; border:1px solid #4b5563; background:#111827; color:#f9fafb;">
         <table>
-          <thead><tr><th>Código</th><th>Nombre</th><th>Estado</th><th>Acción</th></tr></thead>
-          <tbody id="tabla-empresas"></tbody>
+          <thead>
+            <tr>
+              <th>Código</th>
+              <th>Nombre</th>
+              <th>Dueño</th>
+              <th>Estado</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="tabla-empresas">
+            <tr><td colspan="5" class="vacio">Cargando...</td></tr>
+          </tbody>
         </table>
       </div>
     </div>
   </div>
+
+  <div id="toast" class="toast"></div>
 
   <script type="module" src="../js/superadmin.js"></script>
 </body>

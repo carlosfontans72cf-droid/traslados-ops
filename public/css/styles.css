@@ -1601,3 +1601,253 @@ body {
     font-size: 0.9rem;
   }
 }
+
+
+/* =========================================================
+   ===== LAYOUT DE DASHBOARDS v2 — ordenado, sin amontonar =====
+   Aplica a dashboard-owner.html, dashboard-manager.html y
+   dashboard-driver.html (comparten estas mismas clases).
+   ========================================================= */
+
+body {
+  background: #f1f5f9;
+}
+
+.navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: linear-gradient(135deg, #1a3a6b 0%, #2c5299 100%);
+  color: #fff;
+  padding: 14px 20px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.navbar h1 {
+  font-size: 1.15rem;
+  font-weight: 700;
+  margin: 0;
+}
+.navbar .user-info {
+  font-size: 0.85rem;
+  color: #dbeafe;
+  font-weight: 500;
+}
+
+.dashboard {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 18px 14px 60px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+  gap: 12px;
+  margin-bottom: 18px;
+}
+.stat-card {
+  background: #fff;
+  border-radius: 14px;
+  padding: 16px 10px;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+.stat-card .number {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: #1a3a6b;
+  line-height: 1.1;
+}
+.stat-card .label {
+  font-size: 0.75rem;
+  color: #64748b;
+  margin-top: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.section-title {
+  margin-top: 26px;
+  margin-bottom: 10px;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #1e293b;
+  padding-left: 2px;
+}
+.section-title:first-of-type {
+  margin-top: 6px;
+}
+
+.card {
+  background: #fff;
+  border-radius: 14px;
+  padding: 18px 16px;
+  margin-bottom: 16px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+}
+.card-header {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: #1a3a6b;
+  margin-bottom: 14px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.grid {
+  display: grid;
+  gap: 12px;
+}
+.grid-2 {
+  grid-template-columns: 1fr;
+}
+@media (min-width: 640px) {
+  .grid-2 {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.card label {
+  display: block;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #475569;
+  margin-bottom: 5px;
+}
+.card .form-control,
+.card select.form-control,
+.card input[type="number"],
+.price-input {
+  width: 100%;
+  padding: 11px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  background: #fcfcfd;
+  margin-bottom: 4px;
+}
+.card .form-control:focus,
+.price-input:focus {
+  outline: none;
+  border-color: #1a3a6b;
+  box-shadow: 0 0 0 3px rgba(26, 58, 107, 0.12);
+}
+
+.card table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+.card th {
+  text-align: left;
+  padding: 8px 6px;
+  color: #64748b;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 2px solid #e2e8f0;
+}
+.card td {
+  padding: 10px 6px;
+  border-bottom: 1px solid #f1f5f9;
+  vertical-align: middle;
+}
+
+.badge {
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+.badge-active { background: #dcfce7; color: #15803d; }
+.badge-inactive { background: #fee2e2; color: #b91c1c; }
+
+.alert-card {
+  border-left: 4px solid #dc2626;
+  margin-bottom: 10px;
+}
+
+/* Tarjeta de resultado de cálculo de viaje */
+.trip-result, [id$="-trip-result"] {
+  border: 1px solid #bfdbfe;
+}
+
+/* ===== GESTIÓN DE ZONAS ===== */
+.zonas-wrap {
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid #e2e8f0;
+}
+.zonas-titulo {
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: #1a3a6b;
+  margin-bottom: 10px;
+}
+.zona-form {
+  display: grid;
+  grid-template-columns: 2fr 1fr auto;
+  gap: 8px;
+  align-items: end;
+  margin-bottom: 14px;
+}
+.zona-fila {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 9px 12px;
+  background: #f8fafc;
+  border-radius: 8px;
+  margin-bottom: 6px;
+  font-size: 0.88rem;
+}
+.zona-fila .zona-nombre {
+  font-weight: 600;
+  color: #1e293b;
+}
+.zona-fila .zona-precio {
+  color: #16a34a;
+  font-weight: 700;
+  margin-left: 8px;
+}
+.zona-fila .zona-eliminar {
+  background: none;
+  border: none;
+  color: #dc2626;
+  cursor: pointer;
+  font-size: 1rem;
+  padding: 4px 8px;
+}
+.zonas-vacio {
+  color: #94a3b8;
+  font-size: 0.85rem;
+  padding: 8px 0;
+  text-align: center;
+}
+
+/* Selector de modo de tarifa en creación de viajes */
+.modo-tarifa-wrap {
+  margin-bottom: 12px;
+}
+.zona-select-wrap {
+  display: none;
+  margin-bottom: 12px;
+}
+.zona-select-wrap.visible {
+  display: block;
+}
+
+@media (min-width: 640px) {
+  .dashboard {
+    padding: 26px 20px 70px 20px;
+  }
+  .card {
+    padding: 22px 22px;
+  }
+}

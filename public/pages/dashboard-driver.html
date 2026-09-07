@@ -32,6 +32,21 @@
       <div class="trip-field"><label>Lugar de Partida</label><input type="text" id="trip-origen" placeholder="Dirección de origen"></div>
       <div class="trip-field"><label>Lugar de Destino</label><input type="text" id="trip-destino" placeholder="Dirección de destino"></div>
       <div class="trip-field"><label>N° Personas</label><input type="number" id="trip-personas" value="1" min="1"></div>
+      <div class="trip-field modo-tarifa-wrap">
+        <label>Modo de tarifa</label>
+        <select id="trip-modo" class="form-control">
+          <option value="km">Por Kilómetro</option>
+          <option value="hora">Por Hora</option>
+          <option value="persona">Por Persona</option>
+          <option value="zona">Por Zona</option>
+        </select>
+      </div>
+      <div class="trip-field zona-select-wrap" id="zona-select-wrap">
+        <label>Zona</label>
+        <select id="trip-zona" class="form-control">
+          <option value="">-- Seleccionar zona --</option>
+        </select>
+      </div>
       <div class="btn-group"><button class="btn btn-info btn-block" onclick="calculateCost()">🧮 Calcular Costo</button></div>
 
       <div class="trip-result" id="trip-result" style="display:none; margin-top:15px; padding:12px; background:#e8f0fe; border-radius:8px;">
