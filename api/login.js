@@ -1,9 +1,11 @@
-// /api/login.js
-import admin from 'firebase-admin';
+﻿// /api/login.js
+const { initializeApp, cert, getApps } = require('firebase-admin/app');
+const { getFirestore } = require('firebase-admin/firestore');
+const { getAuth } = require('firebase-admin/auth');
 
-if (!admin.apps.length) {
-  admin.initializeApp({
-    credential: admin.credential.cert({
+if (!getApps().length) {
+  initializeApp({
+    credential: cert({
       projectId: process.env.FIREBASE_PROJECT_ID,
       clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
       privateKey: (process.env.FIREBASE_PRIVATE_KEY || '').replace(/\\n/g, '\n'),
@@ -11,20 +13,20 @@ if (!admin.apps.length) {
   });
 }
 
-const db = admin.firestore();
+const db = getFirestore();
+const auth = getAuth();
 
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
   if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Método no permitido' });
+    return res.status(405).json({ error: 'Metodo no permitido' });
   }
 
   const { companyId, nombre, apellido, password, superadmin } = req.body || {};
 
   try {
-    // ========== LOGIN DE SUPER ADMIN (dueño de la plataforma) ==========
     if (superadmin) {
       if (!nombre || !password) {
-        return res.status(400).json({ error: 'Completá usuario y contraseña' });
+        return res.status(400).json({ error: 'Completa usuario y contrasena' });
       }
 
       const snap = await db.collection('platform_admins')
@@ -36,7 +38,7 @@ export default async function handler(req, res) {
         return res.status(401).json({ error: 'Credenciales de super admin incorrectas' });
       }
 
-      const token = await admin.auth().createCustomToken(`superadmin_${match.id}`, {
+      const token = await auth.createCustomToken(`superadmin_${match.id}`, {
         superadmin: true,
       });
 
@@ -48,10 +50,9 @@ export default async function handler(req, res) {
       });
     }
 
-    // ========== LOGIN NORMAL (usuario de una empresa) ==========
     if (!companyId || !nombre || !apellido || !password) {
       return res.status(400).json({
-        error: 'Completá empresa, nombre, apellido y contraseña',
+        error: 'Completa empresa, nombre, apellido y contrasena',
       });
     }
 
@@ -60,10 +61,10 @@ export default async function handler(req, res) {
     const companySnap = await companyRef.get();
 
     if (!companySnap.exists) {
-      return res.status(404).json({ error: 'Código de empresa no encontrado' });
+      return res.status(404).json({ error: 'Codigo de empresa no encontrado' });
     }
     if (companySnap.data().activo === false) {
-      return res.status(403).json({ error: 'Esta empresa está desactivada. Contactá al soporte.' });
+      return res.status(403).json({ error: 'Esta empresa esta desactivada. Contacta al soporte.' });
     }
 
     const usersSnap = await companyRef.collection('users')
@@ -77,15 +78,15 @@ export default async function handler(req, res) {
 
     const match = usersSnap.docs.find(d => d.data().password === password);
     if (!match) {
-      return res.status(401).json({ error: 'Contraseña incorrecta' });
+      return res.status(401).json({ error: 'Contrasena incorrecta' });
     }
 
     const userData = match.data();
     if (!userData.activo) {
-      return res.status(403).json({ error: 'Tu cuenta está desactivada. Consultá con tu administrador.' });
+      return res.status(403).json({ error: 'Tu cuenta esta desactivada. Consulta con tu administrador.' });
     }
 
-    const token = await admin.auth().createCustomToken(match.id, {
+    const token = await auth.createCustomToken(match.id, {
       companyId: companyIdNormalizado,
       role: userData.role,
     });
@@ -99,7 +100,7 @@ export default async function handler(req, res) {
     });
 
   } catch (err) {
-    console.error('🔴 Error en /api/login:', err);
-    return res.status(500).json({ error: 'Error interno del servidor. Intentá de nuevo.' });
+    console.error('Error en /api/login:', err);
+    return res.status(500).json({ error: 'Error interno del servidor. Intenta de nuevo.' });
   }
-}
+};
