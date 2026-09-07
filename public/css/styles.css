@@ -1478,3 +1478,126 @@ body {
     min-height: 48px;
   }
 }
+
+
+/* =========================================================
+   ===== CARTEL DE MARCA — CF Desarrollador de Apps =====
+   Va debajo del logo, arriba del formulario (o del contenido
+   de cada dashboard).
+   ========================================================= */
+
+.cf-banner {
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto 18px auto;
+  background: linear-gradient(160deg, #0f1f45 0%, #1a3a6b 100%);
+  border-radius: 16px;
+  padding: 18px 16px;
+  text-align: center;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+  color: #e5e7eb;
+}
+
+.cf-banner-logo {
+  font-size: 1.4rem;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+}
+.cf-banner-logo .cf-brackets {
+  color: #34d399;
+}
+.cf-banner-logo .cf-letters {
+  color: #facc15;
+}
+
+.cf-banner-subtitulo {
+  font-size: 0.72rem;
+  letter-spacing: 2px;
+  color: #94a3b8;
+  margin-bottom: 10px;
+  text-transform: uppercase;
+}
+
+.cf-banner-divisor {
+  width: 60px;
+  height: 2px;
+  background: #facc15;
+  margin: 0 auto 12px auto;
+  border-radius: 2px;
+}
+
+.cf-banner-texto {
+  font-size: 0.85rem;
+  line-height: 1.45;
+  color: #f1f5f9;
+  margin-bottom: 12px;
+}
+.cf-banner-texto b {
+  color: #facc15;
+}
+.cf-banner-texto .cf-idea {
+  color: #fde047;
+  font-weight: 600;
+}
+
+.cf-banner-telefonos {
+  font-size: 0.78rem;
+  color: #cbd5e1;
+  margin-bottom: 14px;
+}
+.cf-banner-telefonos span {
+  margin: 0 8px;
+  white-space: nowrap;
+}
+
+.cf-banner-botones {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.cf-btn-whatsapp {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 11px 16px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #16a34a 0%, #22c55e 100%);
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.92rem;
+  text-decoration: none;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+  box-shadow: 0 2px 8px rgba(22, 163, 74, 0.35);
+}
+.cf-btn-whatsapp:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(22, 163, 74, 0.45);
+}
+.cf-btn-whatsapp:active {
+  transform: translateY(0) scale(0.97);
+}
+
+.cf-banner-footer {
+  margin-top: 14px;
+  font-size: 0.68rem;
+  letter-spacing: 1px;
+  color: #64748b;
+  text-transform: uppercase;
+}
+
+@media (min-width: 768px) {
+  .cf-banner {
+    max-width: 440px;
+    padding: 22px 20px;
+  }
+  .cf-banner-logo {
+    font-size: 1.6rem;
+  }
+  .cf-banner-texto {
+    font-size: 0.9rem;
+  }
+}
