@@ -1,9 +1,11 @@
 // /api/login.js
-const admin = require('firebase-admin');
+const { initializeApp, cert, getApps } = require('firebase-admin/app');
+const { getFirestore } = require('firebase-admin/firestore');
+const { getAuth } = require('firebase-admin/auth');
 
-if (!admin.apps.length) {
-  admin.initializeApp({
-    credential: admin.credential.cert({
+if (!getApps().length) {
+  initializeApp({
+    credential: cert({
       projectId: process.env.FIREBASE_PROJECT_ID,
       clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
       privateKey: (process.env.FIREBASE_PRIVATE_KEY || '').replace(/\\n/g, '\n'),
@@ -11,7 +13,8 @@ if (!admin.apps.length) {
   });
 }
 
-const db = admin.firestore();
+const db = getFirestore();
+const auth = getAuth();
 
 module.exports = async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -36,7 +39,7 @@ module.exports = async function handler(req, res) {
         return res.status(401).json({ error: 'Credenciales de super admin incorrectas' });
       }
 
-      const token = await admin.auth().createCustomToken(`superadmin_${match.id}`, {
+      const token = await auth.createCustomToken(`superadmin_${match.id}`, {
         superadmin: true,
       });
 
@@ -85,7 +88,7 @@ module.exports = async function handler(req, res) {
       return res.status(403).json({ error: 'Tu cuenta está desactivada. Consultá con tu administrador.' });
     }
 
-    const token = await admin.auth().createCustomToken(match.id, {
+    const token = await auth.createCustomToken(match.id, {
       companyId: companyIdNormalizado,
       role: userData.role,
     });
