@@ -1,28 +1,11 @@
 // /api/login.js
-// Función serverless (Vercel) que reemplaza el login "a mano" del cliente.
-// Verifica nombre + apellido + contraseña contra Firestore y, si es correcto,
-// emite un CUSTOM TOKEN de Firebase Authentication con el companyId y el rol
-// incluidos como "claims". Eso es lo que permite que las Firestore Rules
-// puedan exigir "solo tu propia empresa" de forma real e infalseable.
-//
-// ⚠️ REQUIERE variables de entorno en Vercel (Project Settings > Environment Variables):
-//   FIREBASE_PROJECT_ID
-//   FIREBASE_CLIENT_EMAIL
-//   FIREBASE_PRIVATE_KEY
-// Estos 3 valores salen del archivo JSON de "cuenta de servicio" que generás en:
-// Firebase Console > Configuración del proyecto > Cuentas de servicio > Generar nueva clave privada
-//
-// ⚠️ REQUIERE agregar "firebase-admin" a las dependencias de tu proyecto (package.json).
-
-import admin from 'firebase-admin';
+const admin = require('firebase-admin');
 
 if (!admin.apps.length) {
   admin.initializeApp({
     credential: admin.credential.cert({
       projectId: process.env.FIREBASE_PROJECT_ID,
       clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-      // En Vercel las variables de entorno no soportan saltos de línea reales,
-      // por eso la clave se guarda con "\n" literales y acá se convierten.
       privateKey: (process.env.FIREBASE_PRIVATE_KEY || '').replace(/\\n/g, '\n'),
     }),
   });
@@ -30,7 +13,7 @@ if (!admin.apps.length) {
 
 const db = admin.firestore();
 
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Método no permitido' });
   }
@@ -102,8 +85,6 @@ export default async function handler(req, res) {
       return res.status(403).json({ error: 'Tu cuenta está desactivada. Consultá con tu administrador.' });
     }
 
-    // El uid del token es el mismo ID del documento en Firestore.
-    // Firebase Authentication crea el usuario automáticamente la primera vez.
     const token = await admin.auth().createCustomToken(match.id, {
       companyId: companyIdNormalizado,
       role: userData.role,
@@ -121,4 +102,4 @@ export default async function handler(req, res) {
     console.error('🔴 Error en /api/login:', err);
     return res.status(500).json({ error: 'Error interno del servidor. Intentá de nuevo.' });
   }
-}
+};
