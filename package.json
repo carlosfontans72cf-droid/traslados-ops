@@ -1,5 +1,8 @@
-{
+﻿{
   "dependencies": {
     "firebase-admin": "^14.3.0"
+  },
+  "overrides": {
+    "jose": "^5.9.6"
   }
 }
