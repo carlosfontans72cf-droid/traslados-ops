@@ -8,6 +8,12 @@ import { showAlert, formatDate, exportToExcel, calculateRouteCost } from './util
 
 let map, markers = {};
 
+// ✅ Empresa del usuario logueado — todo el panel opera dentro de este "cajón"
+const companyId = sessionStorage.getItem('companyId');
+if (!companyId) {
+  window.location.href = '/index.html';
+}
+
 // ✅ Mostrar nombre usuario
 const nombreUsuario = sessionStorage.getItem('fullName');
 const infoElement = document.getElementById('user-info');
@@ -53,7 +59,7 @@ async function loadDrivers() {
   }
 
   try {
-    const snap = await getDocs(collection(db, 'users'));
+    const snap = await getDocs(collection(db, 'companies', companyId, 'users'));
     snap.forEach(d => {
       const data = d.data();
       if (data.role === 'owner') return;
@@ -100,7 +106,7 @@ window.addDriver = async () => {
   }
 
   try {
-    await addDoc(collection(db, 'users'), {
+    await addDoc(collection(db, 'companies', companyId, 'users'), {
       nombre, apellido, password: clave,
       role: 'driver', activo: true,
       createdAt: serverTimestamp()
@@ -125,7 +131,7 @@ window.addManager = async () => {
   }
 
   try {
-    await addDoc(collection(db, 'users'), {
+    await addDoc(collection(db, 'companies', companyId, 'users'), {
       nombre, apellido, password: clave,
       role: 'manager', activo: true,
       createdAt: serverTimestamp()
@@ -142,7 +148,7 @@ window.addManager = async () => {
 
 window.toggleUser = async (idUsuario, nuevoEstado) => {
   try {
-    await updateDoc(doc(db, 'users', idUsuario), { activo: nuevoEstado });
+    await updateDoc(doc(db, 'companies', companyId, 'users', idUsuario), { activo: nuevoEstado });
     loadDrivers();
     showAlert('✅ Estado actualizado', 'success');
   } catch (err) {
@@ -153,7 +159,7 @@ window.toggleUser = async (idUsuario, nuevoEstado) => {
 window.deleteUser = async (idUsuario) => {
   if (!confirm('¿Seguro que deseas eliminar este usuario?')) return;
   try {
-    await deleteDoc(doc(db, 'users', idUsuario));
+    await deleteDoc(doc(db, 'companies', companyId, 'users', idUsuario));
     loadDrivers();
     showAlert(' Usuario eliminado', 'success');
   } catch (err) {
@@ -163,7 +169,7 @@ window.deleteUser = async (idUsuario) => {
 
 // ========== PRECIOS ==========
 async function loadPrices() {
-  const precioRef = doc(db, 'config', 'prices');
+  const precioRef = doc(db, 'companies', companyId, 'config', 'prices');
   const precioDoc = await getDoc(precioRef);
   if (precioDoc.exists()) {
     const p = precioDoc.data();
@@ -180,7 +186,7 @@ async function loadPrices() {
 
 async function savePrices() {
   try {
-    await setDoc(doc(db, 'config', 'prices'), {
+    await setDoc(doc(db, 'companies', companyId, 'config', 'prices'), {
       porPersona: parseFloat(document.getElementById('price-persona').value) || 0,
       porZona: parseFloat(document.getElementById('price-zona').value) || 0,
       porKm: parseFloat(document.getElementById('price-km').value) || 0,
@@ -204,7 +210,7 @@ window.calculateManagerTrip = async () => {
   }
 
   try {
-    const priceSnap = await getDoc(doc(db, 'config', 'prices'));
+    const priceSnap = await getDoc(doc(db, 'companies', companyId, 'config', 'prices'));
     const precios = priceSnap.exists() ? priceSnap.data() : { porPersona:0, porZona:0, porKm:0, porHora:0 };
     const resultado = await calculateRouteCost(origen, destino, precios, personas);
 
@@ -238,7 +244,7 @@ window.createManagerTrip = async () => {
 
   const datos = window._managerTripData;
   try {
-    await addDoc(collection(db, 'trips'), {
+    await addDoc(collection(db, 'companies', companyId, 'trips'), {
       userId: choferId,
       nombreConductor: choferNombre,
       origen: datos.origen,
@@ -280,7 +286,7 @@ function initLiveMap() {
 }
 
 function escucharUbicacionesTodos() {
-  onSnapshot(collection(db, 'users'), (cambios) => {
+  onSnapshot(collection(db, 'companies', companyId, 'users'), (cambios) => {
     Object.values(markers).forEach(m => map.removeLayer(m));
     markers = {};
 
@@ -304,7 +310,7 @@ async function loadAlerts() {
   contenedorAlertas.innerHTML = '';
 
   try {
-    const snap = await getDocs(collection(db, 'alerts'));
+    const snap = await getDocs(collection(db, 'companies', companyId, 'alerts'));
     const alertas = [];
     snap.forEach(d => alertas.push({ id: d.id, ...d.data() }));
     alertas.sort((a, b) => {
@@ -333,7 +339,7 @@ async function loadAlerts() {
 
 window.deleteAlert = async (idAlerta) => {
   try {
-    await deleteDoc(doc(db, 'alerts', idAlerta));
+    await deleteDoc(doc(db, 'companies', companyId, 'alerts', idAlerta));
     loadAlerts();
     showAlert('✅ Alerta eliminada', 'success');
   } catch (err) {
@@ -343,9 +349,9 @@ window.deleteAlert = async (idAlerta) => {
 
 window.saveAlert = async (idAlerta) => {
   try {
-    const docAlerta = await getDoc(doc(db, 'alerts', idAlerta));
+    const docAlerta = await getDoc(doc(db, 'companies', companyId, 'alerts', idAlerta));
     if(docAlerta.exists()){
-      await addDoc(collection(db, 'saved_alerts'), {
+      await addDoc(collection(db, 'companies', companyId, 'saved_alerts'), {
         ...docAlerta.data(),
         guardadoEn: serverTimestamp()
       });
@@ -363,7 +369,7 @@ async function loadHistory() {
   tablaHistorial.innerHTML = '';
 
   try {
-    const snap = await getDocs(collection(db, 'trips'));
+    const snap = await getDocs(collection(db, 'companies', companyId, 'trips'));
     const viajes = [];
     snap.forEach(d => viajes.push({ id: d.id, ...d.data() }));
     viajes.sort((a, b) => {
@@ -391,7 +397,7 @@ async function loadHistory() {
 window.deleteTrip = async (idViaje) => {
   if (!confirm('¿Eliminar este viaje?')) return;
   try {
-    await deleteDoc(doc(db, 'trips', idViaje));
+    await deleteDoc(doc(db, 'companies', companyId, 'trips', idViaje));
     loadHistory();
     showAlert('✅ Viaje eliminado', 'success');
   } catch (err) {
@@ -420,9 +426,9 @@ function exportHistory() {
 async function loadStats() {
   try {
     const [usuarios, viajes, alertas] = await Promise.all([
-      getDocs(collection(db, 'users')),
-      getDocs(collection(db, 'trips')),
-      getDocs(collection(db, 'alerts'))
+      getDocs(collection(db, 'companies', companyId, 'users')),
+      getDocs(collection(db, 'companies', companyId, 'trips')),
+      getDocs(collection(db, 'companies', companyId, 'alerts'))
     ]);
     const statDrivers = document.getElementById('stat-drivers');
     const statTrips = document.getElementById('stat-trips');

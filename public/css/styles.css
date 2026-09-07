@@ -1324,3 +1324,157 @@ body {
     font-size: 0.95rem;
   }
 }
+
+/* =========================================================
+   ===== SISTEMA DE BOTONES v2 — más grandes y prolijos =====
+   Este bloque va AL FINAL a propósito: por orden de cascada,
+   estas reglas ganan sobre las versiones viejas de arriba
+   sin necesidad de borrar nada del código existente.
+   ========================================================= */
+
+.btn,
+.btn-principal,
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 46px;
+  padding: 12px 20px;
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.2;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  color: #fff;
+  background: #2563eb;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  transition: transform 0.12s ease, box-shadow 0.12s ease, filter 0.12s ease;
+  margin: 5px 6px 5px 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.btn:hover,
+.btn-principal:hover,
+.btn-primary:hover {
+  filter: brightness(1.08);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  transform: translateY(-1px);
+}
+
+.btn:active,
+.btn-principal:active,
+.btn-primary:active {
+  transform: translateY(0) scale(0.97);
+  filter: brightness(0.96);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+}
+
+.btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+  filter: none;
+}
+
+/* Botón grande, ancho completo (login, acciones principales) */
+.btn-lg {
+  min-height: 52px;
+  padding: 14px 22px;
+  font-size: 1.08rem;
+  border-radius: 12px;
+}
+.btn-block {
+  width: 100%;
+  display: flex;
+}
+
+/* Botón chico (acciones dentro de tablas/filas) */
+.btn-sm {
+  min-height: 38px;
+  padding: 8px 14px;
+  font-size: 0.88rem;
+  border-radius: 8px;
+}
+
+/* ===== Variantes de color (semántica clara) ===== */
+.btn-principal,
+.btn-primary,
+.btn-iniciar,
+.btn-info {
+  background: #2563eb;
+}
+.btn-iniciar:hover,
+.btn-info:hover {
+  background: #1d4ed8;
+}
+
+.btn-finalizar,
+.btn-success {
+  background: #16a34a;
+}
+.btn-finalizar:hover,
+.btn-success:hover {
+  background: #15803d;
+}
+
+.btn-danger,
+.btn-rojo {
+  background: #dc2626;
+}
+.btn-danger:hover,
+.btn-rojo:hover {
+  background: #b91c1c;
+}
+
+.btn-calc,
+.btn-amarillo,
+.btn-warning {
+  background: #f0c800;
+  color: #1f2937;
+}
+.btn-calc:hover,
+.btn-amarillo:hover,
+.btn-warning:hover {
+  background: #d4b000;
+}
+
+.btn-alerta {
+  border-radius: 999px; /* estilo pastilla, se mantiene */
+}
+
+/* Agrupador de botones en filas de tabla / tarjetas */
+.btn-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+/* ===== Ajustes en pantallas grandes: botones aún más cómodos ===== */
+@media (min-width: 768px) {
+  .btn,
+  .btn-principal,
+  .btn-primary {
+    min-height: 50px;
+    padding: 14px 24px;
+    font-size: 1.05rem;
+  }
+  .btn-lg {
+    min-height: 56px;
+    font-size: 1.15rem;
+  }
+  .btn-sm {
+    min-height: 40px;
+    padding: 9px 16px;
+    font-size: 0.92rem;
+  }
+}
+
+/* ===== Touch: en pantallas táctiles, área mínima recomendada (accesibilidad) ===== */
+@media (hover: none) and (pointer: coarse) {
+  .btn, .btn-principal, .btn-primary {
+    min-height: 48px;
+  }
+}

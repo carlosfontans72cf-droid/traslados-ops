@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Super Admin — Traslados Vans</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Roboto, sans-serif; }
+    body {
+      min-height: 100vh;
+      background: linear-gradient(135deg, #111827 0%, #1f2937 100%);
+      padding: 20px;
+      color: #e5e7eb;
+    }
+    .wrap { max-width: 720px; margin: 0 auto; }
+    h1 { font-size: 1.5rem; margin-bottom: 6px; color: #facc15; }
+    .subtitulo { color: #9ca3af; margin-bottom: 24px; font-size: 0.92rem; }
+    .card {
+      background: #1f2937;
+      border: 1px solid #374151;
+      border-radius: 14px;
+      padding: 24px 20px;
+      margin-bottom: 20px;
+    }
+    .campo { margin-bottom: 14px; }
+    .campo label { display: block; margin-bottom: 6px; font-size: 0.9rem; color: #d1d5db; }
+    .campo input {
+      width: 100%;
+      padding: 11px 12px;
+      border-radius: 8px;
+      border: 1px solid #4b5563;
+      background: #111827;
+      color: #f9fafb;
+      font-size: 0.95rem;
+    }
+    .campo input:focus { outline: none; border-color: #facc15; }
+    .btn {
+      min-height: 46px;
+      padding: 12px 20px;
+      border: none;
+      border-radius: 10px;
+      background: #facc15;
+      color: #111827;
+      font-weight: 700;
+      font-size: 0.98rem;
+      cursor: pointer;
+      width: 100%;
+    }
+    .btn:hover { filter: brightness(1.05); }
+    .btn-sm { width: auto; min-height: 38px; padding: 8px 14px; font-size: 0.85rem; }
+    .btn-danger { background: #dc2626; color: #fff; }
+    #panel-login { display: block; }
+    #panel-admin { display: none; }
+    #msg { min-height: 20px; color: #f87171; text-align: center; margin-top: 8px; font-size: 0.9rem; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid #374151; font-size: 0.88rem; }
+    .badge { padding: 3px 10px; border-radius: 999px; font-size: 0.78rem; font-weight: 600; }
+    .badge-on { background: #14532d; color: #86efac; }
+    .badge-off { background: #7f1d1d; color: #fca5a5; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>🛠 Panel Super Admin</h1>
+    <p class="subtitulo">Gestión de empresas de la plataforma Traslados Vans</p>
+
+    <!-- LOGIN SUPER ADMIN -->
+    <div id="panel-login" class="card">
+      <div class="campo">
+        <label for="sa-nombre">Usuario</label>
+        <input type="text" id="sa-nombre" placeholder="Tu usuario de super admin">
+      </div>
+      <div class="campo">
+        <label for="sa-password">Contraseña</label>
+        <input type="password" id="sa-password" placeholder="Contraseña">
+      </div>
+      <button id="btn-sa-login" class="btn">Ingresar</button>
+      <div id="msg"></div>
+    </div>
+
+    <!-- PANEL PRINCIPAL -->
+    <div id="panel-admin">
+      <div class="card">
+        <h2 style="margin-bottom:14px; font-size:1.1rem;">➕ Crear nueva empresa</h2>
+        <div class="campo">
+          <label for="nueva-empresa-id">Código de empresa (sin espacios, minúsculas)</label>
+          <input type="text" id="nueva-empresa-id" placeholder="ej: acme">
+        </div>
+        <div class="campo">
+          <label for="nueva-empresa-nombre">Nombre de la empresa</label>
+          <input type="text" id="nueva-empresa-nombre" placeholder="ej: Acme Traslados S.A.">
+        </div>
+        <hr style="border-color:#374151; margin: 16px 0;">
+        <p style="font-size:0.85rem; color:#9ca3af; margin-bottom:10px;">Primer usuario (dueño) de la empresa:</p>
+        <div class="campo">
+          <label for="owner-nombre">Nombre del dueño</label>
+          <input type="text" id="owner-nombre" placeholder="Nombre">
+        </div>
+        <div class="campo">
+          <label for="owner-apellido">Apellido del dueño</label>
+          <input type="text" id="owner-apellido" placeholder="Apellido">
+        </div>
+        <div class="campo">
+          <label for="owner-password">Contraseña del dueño</label>
+          <input type="text" id="owner-password" placeholder="Contraseña temporal">
+        </div>
+        <button id="btn-crear-empresa" class="btn">Crear empresa</button>
+        <div id="msg-crear" style="min-height:20px; text-align:center; margin-top:8px; font-size:0.9rem;"></div>
+      </div>
+
+      <div class="card">
+        <h2 style="margin-bottom:14px; font-size:1.1rem;">🏢 Empresas registradas</h2>
+        <table>
+          <thead><tr><th>Código</th><th>Nombre</th><th>Estado</th><th>Acción</th></tr></thead>
+          <tbody id="tabla-empresas"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="../js/superadmin.js"></script>
+</body>
+</html>

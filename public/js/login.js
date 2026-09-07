@@ -1,59 +1,124 @@
-// /js/auth.js
-import { auth, db } from './firebase-config.js';
-import { signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-import { doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+// /api/login.js
+// Función serverless (Vercel) que reemplaza el login "a mano" del cliente.
+// Verifica nombre + apellido + contraseña contra Firestore y, si es correcto,
+// emite un CUSTOM TOKEN de Firebase Authentication con el companyId y el rol
+// incluidos como "claims". Eso es lo que permite que las Firestore Rules
+// puedan exigir "solo tu propia empresa" de forma real e infalseable.
+//
+// ⚠️ REQUIERE variables de entorno en Vercel (Project Settings > Environment Variables):
+//   FIREBASE_PROJECT_ID
+//   FIREBASE_CLIENT_EMAIL
+//   FIREBASE_PRIVATE_KEY
+// Estos 3 valores salen del archivo JSON de "cuenta de servicio" que generás en:
+// Firebase Console > Configuración del proyecto > Cuentas de servicio > Generar nueva clave privada
+//
+// ⚠️ REQUIERE agregar "firebase-admin" a las dependencias de tu proyecto (package.json).
 
-// Elementos del formulario (coinciden con IDs en tu HTML)
-const btnIngresar = document.getElementById('btnIngresar');
-const mensajeError = document.getElementById('mensajeError');
+import admin from 'firebase-admin';
 
-btnIngresar.addEventListener('click', async () => {
-  // Leer y limpiar valores
-  const email = document.getElementById('email').value.trim();
-  const password = document.getElementById('password').value.trim();
+if (!admin.apps.length) {
+  admin.initializeApp({
+    credential: admin.credential.cert({
+      projectId: process.env.FIREBASE_PROJECT_ID,
+      clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+      // En Vercel las variables de entorno no soportan saltos de línea reales,
+      // por eso la clave se guarda con "\n" literales y acá se convierten.
+      privateKey: (process.env.FIREBASE_PRIVATE_KEY || '').replace(/\\n/g, '\n'),
+    }),
+  });
+}
 
-  // Limpiar aviso anterior
-  mensajeError.textContent = '';
+const db = admin.firestore();
+
+export default async function handler(req, res) {
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Método no permitido' });
+  }
+
+  const { companyId, nombre, apellido, password, superadmin } = req.body || {};
 
   try {
-    // 📌 Validar que no falten datos
-    if (!email || !password) {
-      throw new Error('Completa correo y contraseña');
+    // ========== LOGIN DE SUPER ADMIN (dueño de la plataforma) ==========
+    if (superadmin) {
+      if (!nombre || !password) {
+        return res.status(400).json({ error: 'Completá usuario y contraseña' });
+      }
+
+      const snap = await db.collection('platform_admins')
+        .where('nombre', '==', nombre)
+        .get();
+
+      const match = snap.docs.find(d => d.data().password === password);
+      if (!match) {
+        return res.status(401).json({ error: 'Credenciales de super admin incorrectas' });
+      }
+
+      const token = await admin.auth().createCustomToken(`superadmin_${match.id}`, {
+        superadmin: true,
+      });
+
+      return res.status(200).json({
+        token,
+        role: 'superadmin',
+        userId: match.id,
+        fullName: match.data().nombre,
+      });
     }
 
-    // 📌 Iniciar sesión con correo y contraseña
-    const credenciales = await signInWithEmailAndPassword(auth, email, password);
-    const uidUsuario = credenciales.user.uid;
-
-    // 📌 Cargar datos completos desde base de datos
-    const referenciaUsuario = doc(db, 'users', uidUsuario);
-    const documentoUsuario = await getDoc(referenciaUsuario);
-
-    if (!documentoUsuario.exists()) {
-      throw new Error('Usuario no encontrado en registros');
+    // ========== LOGIN NORMAL (usuario de una empresa) ==========
+    if (!companyId || !nombre || !apellido || !password) {
+      return res.status(400).json({
+        error: 'Completá empresa, nombre, apellido y contraseña',
+      });
     }
 
-    const datosUsuario = documentoUsuario.data();
+    const companyIdNormalizado = String(companyId).trim().toLowerCase();
+    const companyRef = db.collection('companies').doc(companyIdNormalizado);
+    const companySnap = await companyRef.get();
 
-    // 📌 Guardar datos en sesión para usar en paneles
-    sessionStorage.setItem('userRole', datosUsuario.role);
-    sessionStorage.setItem('userId', uidUsuario);
-    sessionStorage.setItem('fullName', `${datosUsuario.nombre} ${datosUsuario.apellido}`);
-
-    // 📌 REDIRECCIÓN SEGÚN PERFIL (rutas correctas definitivas)
-    if (datosUsuario.role === 'owner') {
-      window.location.href = '/pages/dashboard-owner.html';
-    } else if (datosUsuario.role === 'manager') {
-      window.location.href = '/pages/dashboard-manager.html';
-    } else if (datosUsuario.role === 'driver') {
-      window.location.href = '/pages/dashboard-driver.html';
-    } else {
-      throw new Error('Perfil de usuario no reconocido');
+    if (!companySnap.exists) {
+      return res.status(404).json({ error: 'Código de empresa no encontrado' });
+    }
+    if (companySnap.data().activo === false) {
+      return res.status(403).json({ error: 'Esta empresa está desactivada. Contactá al soporte.' });
     }
 
-  } catch (error) {
-    // 📌 Mostrar error claro, guardar registro en consola
-    console.error('🔴 Fallo ingreso:', error);
-    mensajeError.textContent = `⚠️ ${error.message}`;
+    const usersSnap = await companyRef.collection('users')
+      .where('nombre', '==', nombre)
+      .where('apellido', '==', apellido)
+      .get();
+
+    if (usersSnap.empty) {
+      return res.status(401).json({ error: 'Usuario no registrado en esta empresa' });
+    }
+
+    const match = usersSnap.docs.find(d => d.data().password === password);
+    if (!match) {
+      return res.status(401).json({ error: 'Contraseña incorrecta' });
+    }
+
+    const userData = match.data();
+    if (!userData.activo) {
+      return res.status(403).json({ error: 'Tu cuenta está desactivada. Consultá con tu administrador.' });
+    }
+
+    // El uid del token es el mismo ID del documento en Firestore.
+    // Firebase Authentication crea el usuario automáticamente la primera vez.
+    const token = await admin.auth().createCustomToken(match.id, {
+      companyId: companyIdNormalizado,
+      role: userData.role,
+    });
+
+    return res.status(200).json({
+      token,
+      companyId: companyIdNormalizado,
+      role: userData.role,
+      userId: match.id,
+      fullName: `${userData.nombre} ${userData.apellido}`,
+    });
+
+  } catch (err) {
+    console.error('🔴 Error en /api/login:', err);
+    return res.status(500).json({ error: 'Error interno del servidor. Intentá de nuevo.' });
   }
-});
+}

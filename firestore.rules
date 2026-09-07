@@ -1,0 +1,83 @@
+rules_version = '2';
+
+// =====================================================================
+// REGLAS DE SEGURIDAD MULTI-EMPRESA
+// Estas reglas dependen de que el login pase por /api/login (custom token
+// con claims companyId + role). Si el usuario entra "directo" a Firestore
+// sin ese token, no tiene permisos: request.auth será null.
+// =====================================================================
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function estaLogueado() {
+      return request.auth != null;
+    }
+
+    function esSuperAdmin() {
+      return estaLogueado() && request.auth.token.superadmin == true;
+    }
+
+    function miEmpresa() {
+      return request.auth.token.companyId;
+    }
+
+    function miRol() {
+      return request.auth.token.role;
+    }
+
+    function esDeEstaEmpresa(companyId) {
+      return estaLogueado() && miEmpresa() == companyId;
+    }
+
+    function esOwnerOManager() {
+      return miRol() == 'owner' || miRol() == 'manager';
+    }
+
+    // ========== EMPRESAS ==========
+    // Solo el super admin puede crear/editar/borrar empresas.
+    // Un usuario de la empresa puede LEER (no escribir) los datos generales
+    // de su propia empresa (ej: nombre, si está activa).
+    match /companies/{companyId} {
+      allow read: if esSuperAdmin() || esDeEstaEmpresa(companyId);
+      allow write: if esSuperAdmin();
+
+      // ----- Usuarios de la empresa (choferes, managers, owner) -----
+      match /users/{userId} {
+        allow read: if esSuperAdmin() || esDeEstaEmpresa(companyId);
+        allow write: if esSuperAdmin() ||
+                      (esDeEstaEmpresa(companyId) && esOwnerOManager());
+      }
+
+      // ----- Viajes -----
+      match /trips/{tripId} {
+        allow read, write: if esSuperAdmin() || esDeEstaEmpresa(companyId);
+      }
+
+      // ----- Alertas -----
+      match /alerts/{alertId} {
+        allow read, write: if esSuperAdmin() || esDeEstaEmpresa(companyId);
+      }
+
+      match /saved_alerts/{docId} {
+        allow read, write: if esSuperAdmin() ||
+                      (esDeEstaEmpresa(companyId) && esOwnerOManager());
+      }
+
+      // ----- Configuración (precios, bloqueo de app) -----
+      match /config/{docId} {
+        allow read: if esSuperAdmin() || esDeEstaEmpresa(companyId);
+        allow write: if esSuperAdmin() ||
+                      (esDeEstaEmpresa(companyId) && esOwnerOManager());
+      }
+    }
+
+    // ========== SUPER ADMINS DE LA PLATAFORMA ==========
+    // Nunca se leen ni escriben desde el cliente. Solo /api/login (backend
+    // con permisos de administrador) puede consultarlos. El primer registro
+    // se crea a mano una vez, desde la consola de Firebase.
+    match /platform_admins/{adminId} {
+      allow read, write: if false;
+    }
+  }
+}

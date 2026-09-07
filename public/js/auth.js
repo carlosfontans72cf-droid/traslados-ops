@@ -1,90 +1,62 @@
 // /js/auth.js
-import { db } from './firebase-config.js';
-import {
-  collection, getDocs, query, where,
-  doc, getDoc, setDoc, serverTimestamp
-} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { auth } from './firebase-config.js';
+import { signInWithCustomToken } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
 const btnLogin = document.getElementById('btn-login');
 const errorDiv = document.getElementById('login-error');
 
 btnLogin.addEventListener('click', async () => {
+  const empresa = document.getElementById('empresa').value.trim().toLowerCase();
   const nombre = document.getElementById('nombre').value.trim();
   const apellido = document.getElementById('apellido').value.trim();
   const password = document.getElementById('password').value;
 
-  // Limpiar mensajes anteriores
   errorDiv.textContent = '';
   btnLogin.disabled = true;
   btnLogin.textContent = '⏳ Entrando...';
 
   try {
-    // 📌 Validar que no falten datos
-    if (!nombre || !apellido || !password) {
-      errorDiv.textContent = '⚠️ Completa todos los campos obligatorios.';
-      throw new Error('Faltan datos por completar');
+    if (!empresa || !nombre || !apellido || !password) {
+      errorDiv.textContent = '⚠️ Completa todos los campos, incluyendo el código de empresa.';
+      return;
     }
 
-    // 📌 Buscar en colección "users" por nombre y apellido
-    const usersRef = collection(db, 'users');
-    const consulta = query(
-      usersRef,
-      where('nombre', '==', nombre),
-      where('apellido', '==', apellido)
-    );
-    const resultado = await getDocs(consulta);
+    // 📌 Verificación de credenciales en el servidor (no en el navegador)
+    const respuesta = await fetch('/api/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ companyId: empresa, nombre, apellido, password }),
+    });
 
-    if (resultado.empty) {
-      errorDiv.textContent = '❌ Usuario no registrado. Verifica tus datos.';
-      throw new Error('Sin coincidencia nombre+apellido');
+    const datos = await respuesta.json();
+
+    if (!respuesta.ok) {
+      errorDiv.textContent = `❌ ${datos.error || 'No se pudo iniciar sesión'}`;
+      return;
     }
 
-    // 📌 Dentro de coincidencias, comprobar contraseña y estado activo
-    let datosUsuario = null;
-    let idUsuario = null;
+    // 📌 Iniciar sesión real de Firebase con el token recibido
+    await signInWithCustomToken(auth, datos.token);
 
-    for (const registro of resultado.docs) {
-      const datos = registro.data();
-      if (datos.password === password) {
-        if (!datos.activo) {
-          errorDiv.textContent = '⛔ Tu cuenta está desactivada. Consulta con el administrador.';
-          throw new Error('Usuario inactivo');
-        }
-        // Guardamos datos solo si contraseña correcta Y activo
-        datosUsuario = datos;
-        idUsuario = registro.id;
-        break;
-      }
-    }
+    // 📌 Guardar datos en sesión para usarlos en los paneles
+    sessionStorage.setItem('companyId', datos.companyId);
+    sessionStorage.setItem('userRole', datos.role);
+    sessionStorage.setItem('userId', datos.userId);
+    sessionStorage.setItem('fullName', datos.fullName);
 
-    if (!datosUsuario) {
-      errorDiv.textContent = '❌ Contraseña incorrecta. Intenta nuevamente.';
-      throw new Error('Contraseña no coincide');
-    }
-
-    // 📌 Guardar datos en sesión para usarlos en paneles
-    sessionStorage.setItem('userRole', datosUsuario.role);
-    sessionStorage.setItem('userId', idUsuario);
-    sessionStorage.setItem('fullName', `${datosUsuario.nombre} ${datosUsuario.apellido}`);
-    sessionStorage.setItem('userNombre', datosUsuario.nombre);
-    sessionStorage.setItem('userApellido', datosUsuario.apellido);
-
-    // 📌 REDIRECCIÓN CORRECTA → SIN /src/ , EXACTA
     let destino = '/pages/dashboard-driver.html';
-    if (datosUsuario.role === 'owner') {
+    if (datos.role === 'owner') {
       destino = '/pages/dashboard-owner.html';
-    } else if (datosUsuario.role === 'manager') {
+    } else if (datos.role === 'manager') {
       destino = '/pages/dashboard-manager.html';
     }
 
-    console.log('✅ Ingreso válido, redirigiendo a:', destino);
     window.location.href = destino;
 
   } catch (error) {
     console.error('🔴 Error inicio sesión:', error);
-    // Mensaje ya se muestra arriba, no repetimos
+    errorDiv.textContent = '⚠️ Error de conexión. Intentá de nuevo.';
   } finally {
-    // Volver a habilitar botón siempre, falle o no
     btnLogin.disabled = false;
     btnLogin.textContent = '🔑 Iniciar Sesión';
   }
